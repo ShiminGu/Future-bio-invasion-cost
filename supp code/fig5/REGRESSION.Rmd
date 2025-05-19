@@ -1,0 +1,203 @@
+---
+title: "regression"
+author: "Shimin Gu"
+date: "2024-08-28"
+output: html_document
+---
+
+```{r}
+#load package
+library(ggplot2)
+library(ggrepel)
+library(ggpmisc)
+
+#load data
+topcost <- read.csv("top10_regress.csv", sep = ",", header = T)
+topcost_chang <- read.csv("top10_regress_changing.csv", sep = ",", header = T)
+```
+
+#top 10 costliest countries 
+#plotting - top10 taxa
+```{r}
+pdf(width = 6, height = 4, file = "top10_reg_top10.pdf")
+
+sizetext <- 12
+sizepoint <- 3
+sizename <- 2
+my.formula <- y ~ x
+
+ggplot(topcost, aes(x = tot_top, y = tot_countr)) +
+  geom_point(size = sizepoint, alpha = 0.65, aes(color = factor(topcost$period)))+
+  geom_text_repel(label = topcost$countr_name, size = sizename,max.overlaps = 30, box.padding = 0.5,aes(color = factor(topcost$period)))+
+   scale_color_manual(values = c("current"="#979797","ssp1"="#FED3C2","ssp2"="#FD9780","ssp5"="#611320"))+
+   scale_x_continuous(trans = 'log10',breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+   scale_y_continuous(trans = 'log10',breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  
+  geom_smooth(method = "lm", 
+              formula = my.formula, 
+              color="#4B4B4B",
+              linewidth=1, se=T) + 
+  stat_poly_eq(formula = my.formula, 
+               aes(label = paste(..eq.label..,
+                                 ..rr.label..,
+                                 ..p.value.label..,
+                                 sep = "~~~")), parse = TRUE) +
+  
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "right",
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        panel.background = element_rect(fill = 'white', colour = 'white'), 
+        panel.grid.minor = element_line(color = 'white'), 
+        panel.grid.major = element_line(color = 'white'))+
+  labs(x="Potential economic cost of top 10 taxa\n(millions of US$)", y="All potential economic cost within country\n(millions of US$)")
+
+dev.off()
+```
+
+
+
+#top 10 costliest countries
+#plotting - specific taxa
+```{r}
+pdf(width = 6, height = 4, file = "top10_reg_specif.pdf")
+
+sizetext <- 12
+sizepoint <- 3
+sizename <- 2
+my.formula <- y ~ x
+
+ggplot(topcost, aes(x = tot_top, y = tot_specif)) +
+  geom_point(size = sizepoint, alpha = 0.65, aes(color = factor(topcost$period)))+
+  geom_text_repel(label = topcost$countr_name, size = sizename,max.overlaps = 30, box.padding = 0.5,aes(color = factor(topcost$period)))+
+   scale_color_manual(values = c("current"="#979797","ssp1"="#FED3C2","ssp2"="#FD9780","ssp5"="#611320"))+
+   scale_x_continuous(trans = 'log10',breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+   scale_y_continuous(trans = 'log10', labels = scales::comma)+
+  
+  geom_smooth(method = "lm", 
+              formula = my.formula, 
+              color="#4B4B4B",
+              linewidth=1, se=T) + 
+  stat_poly_eq(formula = my.formula, 
+               aes(label = paste(..eq.label..,
+                                 ..rr.label..,
+                                 ..p.value.label..,
+                                 sep = "~~~")), parse = TRUE) +
+  
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "right",
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        panel.background = element_rect(fill = 'white', colour = 'white'), 
+        panel.grid.minor = element_line(color = 'white'), 
+        panel.grid.major = element_line(color = 'white'))+
+  labs(x="Potential economic cost of specific taxa\n(millions of US$)", y="All potential economic cost within country\n(millions of US$)")
+
+dev.off()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+#top 10 proportional changing countries
+#plotting - top10 taxa
+```{r}
+pdf(width = 6, height = 4, file = "top10_reg_top10_changing.pdf")
+
+sizetext <- 12
+sizepoint <- 3
+sizename <- 2
+my.formula <- y ~ x
+
+ggplot(topcost_chang, aes(x = tot_top, y = tot_countr)) +
+  geom_point(size = sizepoint, alpha = 0.65, aes(color = factor(topcost_chang$period)))+
+  geom_text_repel(label = topcost_chang$countr_name, size = sizename,max.overlaps = 30, box.padding = 0.5,aes(color = factor(topcost$period)))+
+   scale_color_manual(values = c("current"="#979797","ssp1"="#FED3C2","ssp2"="#FD9780","ssp5"="#611320"))+
+   scale_x_continuous(labels = scales::comma)+
+   scale_y_continuous(labels = scales::comma)+
+  
+  geom_smooth(method = "lm", 
+              formula = my.formula, 
+              color="#4B4B4B",
+              linewidth=1, se=T) + 
+  stat_poly_eq(formula = my.formula, 
+               aes(label = paste(..eq.label..,
+                                 ..rr.label..,
+                                 ..p.value.label..,
+                                 sep = "~~~")), parse = TRUE) +
+  
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "right",
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        panel.background = element_rect(fill = 'white', colour = 'white'), 
+        panel.grid.minor = element_line(color = 'white'), 
+        panel.grid.major = element_line(color = 'white'))+
+  labs(x="Potential economic cost of top 10 taxa\n(millions of US$)", y="All potential economic cost within country\n(millions of US$)")
+
+dev.off()
+```
+
+
+
+#top 10 proportional changing countries
+#plotting - speific taxa
+```{r}
+pdf(width = 6, height = 4, file = "top10_reg_specif_changing.pdf")
+
+sizetext <- 12
+sizepoint <- 3
+sizename <- 2
+my.formula <- y ~ x
+
+ggplot(topcost_chang, aes(x = tot_top, y = tot_specif)) +
+  geom_point(size = sizepoint, alpha = 0.65, aes(color = factor(topcost_chang$period)))+
+  geom_text_repel(label = topcost_chang$countr_name, size = sizename,max.overlaps = 30, box.padding = 0.5,aes(color = factor(topcost$period)))+
+   scale_color_manual(values = c("current"="#979797","ssp1"="#FED3C2","ssp2"="#FD9780","ssp5"="#611320"))+
+   scale_x_continuous(labels = scales::comma)+
+   scale_y_continuous(labels = scales::comma)+
+  
+  geom_smooth(method = "lm", 
+              formula = my.formula, 
+              color="#4B4B4B",
+              linewidth=1, se=T) + 
+  stat_poly_eq(formula = my.formula, 
+               aes(label = paste(..eq.label..,
+                                 ..rr.label..,
+                                 ..p.value.label..,
+                                 sep = "~~~")), parse = TRUE) +
+  
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "right",
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        panel.background = element_rect(fill = 'white', colour = 'white'), 
+        panel.grid.minor = element_line(color = 'white'), 
+        panel.grid.major = element_line(color = 'white'))+
+  labs(x="Potential economic cost of specific taxa\n(millions of US$)", y="All potential economic cost within country\n(millions of US$)")
+
+dev.off()
+```
+
+

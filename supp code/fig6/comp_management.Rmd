@@ -1,0 +1,754 @@
+---
+title: "comp_management"
+author: "Shimin Gu"
+date: "2024-08-28"
+output: html_document
+---
+
+```{r}
+#load package
+library(ggplot2)
+library(dplyr)
+library(rstatix)
+library(gridExtra)
+library(grid)
+library(tidyverse)
+library(caret)
+library(ggrepel)
+library(ggpmisc)
+library(mgcv)
+
+#load data
+mag_ssp1_st <- read.csv("manage_country_ssp1_st.csv", sep = ",", header = T);mag_ssp1_st$group <- "ssp1_st"
+mag_ssp1_dy <- read.csv("manage_country_ssp1_dy.csv", sep = ",", header = T);mag_ssp1_dy$group <- "ssp1_dy"
+mag_ssp2_st <- read.csv("manage_country_ssp2_st.csv", sep = ",", header = T);mag_ssp2_st$group <- "ssp2_st"
+mag_ssp2_dy <- read.csv("manage_country_ssp2_dy.csv", sep = ",", header = T);mag_ssp2_dy$group <- "ssp2_dy"
+mag_ssp5_st <- read.csv("manage_country_ssp5_st.csv", sep = ",", header = T);mag_ssp5_st$group <- "ssp5_st"
+mag_ssp5_dy <- read.csv("manage_country_ssp5_dy.csv", sep = ",", header = T);mag_ssp5_dy$group <- "ssp5_dy"
+
+manage_sce <- read.csv("manage scenarios.csv", sep = ",", header = T)
+
+
+
+bind_reg_mag_ssps_st <- read.csv("bind_reg_mag_ssps_st_new.csv", sep = ",", header = T)
+
+```
+
+#normality test
+```{r}
+#mag_ssp1_st
+shapiro_test <- shapiro.test(mag_ssp1_st$pred_cost_mean)
+mag_ssp1_st$log_pred_cost_mean <- log10(mag_ssp1_st$pred_cost_mean + 1)
+shapiro_test <- shapiro.test(mag_ssp1_st$log_pred_cost_mean)
+shapiro_test
+
+#mag_ssp1_dy
+shapiro_test <- shapiro.test(mag_ssp1_dy$pred_cost_mean)
+mag_ssp1_dy$log_pred_cost_mean <- log10(mag_ssp1_dy$pred_cost_mean + 1)
+shapiro_test <- shapiro.test(mag_ssp1_dy$log_pred_cost_mean)
+shapiro_test
+
+#mag_ssp2_st
+shapiro_test <- shapiro.test(mag_ssp2_st$pred_cost_mean)
+mag_ssp2_st$log_pred_cost_mean <- log10(mag_ssp2_st$pred_cost_mean + 1)
+shapiro_test <- shapiro.test(mag_ssp2_st$log_pred_cost_mean)
+shapiro_test
+
+#mag_ssp2_dy
+shapiro_test <- shapiro.test(mag_ssp2_dy$pred_cost_mean)
+mag_ssp2_dy$log_pred_cost_mean <- log10(mag_ssp2_dy$pred_cost_mean + 1)
+shapiro_test <- shapiro.test(mag_ssp2_dy$log_pred_cost_mean)
+shapiro_test
+
+#mag_ssp5_st
+shapiro_test <- shapiro.test(mag_ssp5_st$pred_cost_mean)
+mag_ssp5_st$log_pred_cost_mean <- log10(mag_ssp5_st$pred_cost_mean + 1)
+shapiro_test <- shapiro.test(mag_ssp5_st$log_pred_cost_mean)
+shapiro_test
+
+#mag_ssp5_dy
+shapiro_test <- shapiro.test(mag_ssp5_dy$pred_cost_mean)
+mag_ssp5_dy$log_pred_cost_mean <- log10(mag_ssp5_dy$pred_cost_mean + 1)
+shapiro_test <- shapiro.test(mag_ssp5_dy$log_pred_cost_mean)
+shapiro_test
+```
+
+
+#And found without normality, using non-parameteric paired test
+#_tot_
+```{r}
+#mag_ssp1_st
+mag_ssp1_st <- mag_ssp1_st %>%
+  arrange(match(mag_ssp1_st$Country_name, mag_ssp1_dy$Country_name))
+bind_mag_ssp1_st <- rbind(mag_ssp1_st,mag_ssp1_dy)
+bind_mag_ssp1_st %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+#mag_ssp2_st
+mag_ssp2_st <- mag_ssp2_st %>%
+  arrange(match(mag_ssp2_st$Country_name, mag_ssp2_dy$Country_name))
+bind_mag_ssp2_st <- rbind(mag_ssp2_st,mag_ssp2_dy)
+bind_mag_ssp2_st %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+#mag_ssp5_st
+mag_ssp5_st <- mag_ssp5_st %>%
+  arrange(match(mag_ssp5_st$Country_name, mag_ssp5_dy$Country_name))
+bind_mag_ssp5_st <- rbind(mag_ssp5_st,mag_ssp5_dy)
+bind_mag_ssp5_st %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+```
+
+
+# plotting data preparing
+#violin + scatter
+#_tot_
+```{r}
+#mag_ssp1_st
+mag_ssp1_st <- mag_ssp1_st %>%
+  arrange(match(mag_ssp1_st$Country_name, mag_ssp1_dy$Country_name))
+mag_ssp1_st$direct <- 0
+mag_ssp1_st$ssp1_pred <- mag_ssp1_st$pred_cost_mean
+mag_ssp1_st$change <- mag_ssp1_st$ssp1_pred-mag_ssp1_dy$pred_cost_mean
+mag_ssp1_st$propchange <-(mag_ssp1_st$ssp1_pred-mag_ssp1_dy$pred_cost_mean)/mag_ssp1_dy$pred_cost_mean
+for (i in 1:67){
+  if(mag_ssp1_st$change[i]>0){mag_ssp1_st$direct[i] = "increase"}
+  if(mag_ssp1_st$change[i]<0){mag_ssp1_st$direct[i] = "decrease"}
+  if(mag_ssp1_st$change[i]==0){mag_ssp1_st$direct[i] = "no change"}
+}
+reg_mag_ssp1_st <- mag_ssp1_st
+mag_ssp1_st <- mag_ssp1_st[,1:4]
+mag_ssp1_dy$direct <- mag_ssp1_st$direct
+bind_mag_ssp1_st <- rbind(mag_ssp1_st,mag_ssp1_dy)
+
+#mag_ssp2_st
+mag_ssp2_st <- mag_ssp2_st %>%
+  arrange(match(mag_ssp2_st$Country_name, mag_ssp2_dy$Country_name))
+mag_ssp2_st$direct <- 0
+mag_ssp2_st$ssp2_pred <- mag_ssp2_st$pred_cost_mean
+mag_ssp2_st$change <- mag_ssp2_st$ssp2_pred-mag_ssp2_dy$pred_cost_mean
+mag_ssp2_st$propchange <-(mag_ssp2_st$ssp2_pred-mag_ssp2_dy$pred_cost_mean)/mag_ssp2_dy$pred_cost_mean
+for (i in 1:67){
+  if(mag_ssp2_st$change[i]>0){mag_ssp2_st$direct[i] = "increase"}
+  if(mag_ssp2_st$change[i]<0){mag_ssp2_st$direct[i] = "decrease"}
+  if(mag_ssp2_st$change[i]==0){mag_ssp2_st$direct[i] = "no change"}
+}
+reg_mag_ssp2_st <- mag_ssp2_st
+mag_ssp2_st <- mag_ssp2_st[,1:4]
+mag_ssp2_dy$direct <- mag_ssp2_st$direct
+bind_mag_ssp2_st <- rbind(mag_ssp2_st,mag_ssp2_dy)
+
+#mag_ssp5_st
+mag_ssp5_st <- mag_ssp5_st %>%
+  arrange(match(mag_ssp5_st$Country_name, mag_ssp5_dy$Country_name))
+mag_ssp5_st$direct <- 0
+mag_ssp5_st$ssp5_pred <- mag_ssp5_st$pred_cost_mean
+mag_ssp5_st$change <- mag_ssp5_st$ssp5_pred-mag_ssp5_dy$pred_cost_mean
+mag_ssp5_st$propchange <-(mag_ssp5_st$ssp5_pred-mag_ssp5_dy$pred_cost_mean)/mag_ssp5_dy$pred_cost_mean
+for (i in 1:67){
+  if(mag_ssp5_st$change[i]>0){mag_ssp5_st$direct[i] = "increase"}
+  if(mag_ssp5_st$change[i]<0){mag_ssp5_st$direct[i] = "decrease"}
+  if(mag_ssp5_st$change[i]==0){mag_ssp5_st$direct[i] = "no change"}
+}
+reg_mag_ssp5_st <- mag_ssp5_st
+mag_ssp5_st <- mag_ssp5_st[,1:4]
+mag_ssp5_dy$direct <- mag_ssp5_st$direct
+bind_mag_ssp5_st <- rbind(mag_ssp5_st,mag_ssp5_dy)
+
+bind_mag_ssp1_st$group <- factor(bind_mag_ssp1_st$group, levels = c("ssp1_st","ssp1_dy"))
+bind_mag_ssp2_st$group <- factor(bind_mag_ssp2_st$group, levels = c("ssp2_st","ssp2_dy"))
+bind_mag_ssp5_st$group <- factor(bind_mag_ssp5_st$group, levels = c("ssp5_st","ssp5_dy"))
+```
+
+#non-linear regression
+#_tot_
+```{r}
+# reg_mag_ssp1_st <- reg_mag_ssp1_st[,c(1,7)]
+# reg_mag_ssp1_st$mag <- 0
+# for (i in 1:67){
+#   for (j in 1:67){
+#     if (reg_mag_ssp1_st$Country_name[i] == manage_sce$Official_country_sumssp1[j])
+#     {reg_mag_ssp1_st$mag[i] = manage_sce$ssp1_sum_manag[j];break}
+#   }
+# }
+# 
+# reg_mag_ssp2_st <- reg_mag_ssp2_st[,c(1,7)]
+# reg_mag_ssp2_st$mag <- 0
+# for (i in 1:67){
+#   for (j in 1:67){
+#     if (reg_mag_ssp2_st$Country_name[i] == manage_sce$Official_country_sumssp2[j])
+#     {reg_mag_ssp2_st$mag[i] = manage_sce$ssp2_sum_manag[j];break}
+#   }
+# }
+# 
+# reg_mag_ssp5_st <- reg_mag_ssp5_st[,c(1,7)]
+# reg_mag_ssp5_st$mag <- 0
+# for (i in 1:67){
+#   for (j in 1:67){
+#     if (reg_mag_ssp5_st$Country_name[i] == manage_sce$Official_country_sumssp5[j])
+#     {reg_mag_ssp5_st$mag[i] = manage_sce$ssp5_sum_manag[j];break}
+#   }
+# }
+# reg_mag_ssp1_st$log_mag <- log10(reg_mag_ssp1_st$mag + 1)
+# reg_mag_ssp2_st$log_mag <- log10(reg_mag_ssp2_st$mag + 1)
+# reg_mag_ssp5_st$log_mag <- log10(reg_mag_ssp5_st$mag + 1)
+# reg_mag_ssp1_st$group <- "ssp1"
+# reg_mag_ssp2_st$group <- "ssp2"
+# reg_mag_ssp5_st$group <- "ssp5"
+# 
+# bind_reg_mag_ssps_st <- rbind(reg_mag_ssp1_st,reg_mag_ssp2_st,reg_mag_ssp5_st)
+```
+
+#choose models
+```{r}
+library (AICcmodavg); library (plyr); library (stringr)
+
+models <- list (lm (propchange ~ log_mag, data = bind_reg_mag_ssps_st), 
+                nls (propchange ~ I(log_mag^2*a)+ b*log_mag+c, data = bind_reg_mag_ssps_st, start = list (a=1, b=1, c=0)),
+                nls (propchange ~ I((1/(log_mag+1)) * a)+ b, data = bind_reg_mag_ssps_st, start = list(a =1, b =1)),
+                nls (propchange ~ I((1/(log_mag+1)) * a)+ b * log_mag, data = bind_reg_mag_ssps_st, start = list(a =1, b =1)),
+                nls (propchange ~ a*I((log_mag+1)^b), data = bind_reg_mag_ssps_st, start = list (a=2, b=1.5)),
+                lm  (propchange ~ poly(log_mag,3,raw=TRUE),data=bind_reg_mag_ssps_st),
+                gam (propchange ~ s(log_mag), data = bind_reg_mag_ssps_st))
+
+# models[[1]] # check for the regression coefficient
+ldply (models, function(mod){ data.frame (AICc = AICc(mod), AIC = AIC(mod), model = deparse(formula(mod))) })
+
+#1 deltaAICc: 12.4190 # 140.7691	140.6473	propchange ~ log_mag
+#2 deltaAICc: 13.9356 # 142.2857	142.0816	propchange ~ I(log_mag^2 * a) + b * log_mag + c		
+#3 deltaAICc: 15.0166 # 143.3667	143.2449	propchange ~ I((1/(log_mag + 1)) * a) + b		
+#4 deltaAICc: 12.2890 # 140.6391	140.5173	propchange ~ I((1/(log_mag + 1)) * a) + b * log_mag
+#5 deltaAICc: 11.9190 # 140.2691	140.1472	propchange ~ a * I((log_mag + 1)^b)
+#6 deltaAICc: 15.8752 # 144.2253	143.9176	propchange ~ poly(log_mag, 3, raw = TRUE)
+#7 deltaAICc:  0.0000 # 128.3501	127.1624	propchange ~ s(log_mag) ---------------------------the best
+
+
+# #then, we choose three models:
+# #linear:
+# lm(propchange ~ log_mag,data=bind_reg_mag_ssps_st)%>%
+#   summary()
+# #non-linear1:
+# nls (propchange ~ I((1/(log_mag+1)) * a)+ b * log_mag, data = bind_reg_mag_ssps_st, start = list(a =1, b =1))%>%
+#   summary()
+# #non-linear2:
+# nls (propchange ~ a*I((log_mag+1)^b), data = bind_reg_mag_ssps_st, start = list (a=2, b=1.5))%>%
+#   summary()
+
+
+
+# # alternative choice is the Polynomial model
+# lm(propchange~poly(log_mag,6,raw=TRUE),data=bind_reg_mag_ssps_st)%>%
+#   summary()
+
+#then, we choose the 3-degree model
+# formula=y~poly(x,5,raw=TRUE)
+
+
+
+#using gam to fit non-linear --------------------------- --------------------------- --------------------------- ---------------------------
+#all data
+gam(propchange ~ s(log_mag), data = bind_reg_mag_ssps_st)%>%
+  summary()
+
+
+#ssp1
+sub_bind_reg_mag_ssp1_st <- subset(bind_reg_mag_ssps_st,group == "ssp1")
+gam(propchange ~ s(log_mag), data = sub_bind_reg_mag_ssp1_st)%>%
+  summary()
+#ssp2
+sub_bind_reg_mag_ssp2_st <- subset(bind_reg_mag_ssps_st,group == "ssp2")
+gam(propchange ~ s(log_mag), data = sub_bind_reg_mag_ssp2_st)%>%
+  summary()
+#ssp5
+sub_bind_reg_mag_ssp5_st <- subset(bind_reg_mag_ssps_st,group == "ssp5")
+gam(propchange ~ s(log_mag), data = sub_bind_reg_mag_ssp5_st)%>%
+  summary()
+```
+
+#Model performance
+```{r}
+# #Build the model
+# model<-lm(propchange ~ log_mag,data=bind_reg_mag_ssps_st)
+# #Make predictions
+# predictions<-model%>%predict(bind_reg_mag_ssps_st)
+# data.frame(
+# RMSE=RMSE(predictions,bind_reg_mag_ssps_st$propchange),
+# R2=R2(predictions,bind_reg_mag_ssps_st$propchange)
+# )
+# 
+# #Build the model
+# model<-nls (propchange ~ I((1/(log_mag+1)) * a)+ b * log_mag, data = bind_reg_mag_ssps_st, start = list(a =1, b =1))
+# #Make predictions
+# predictions<-model%>%predict(bind_reg_mag_ssps_st)
+# data.frame(
+# RMSE=RMSE(predictions,bind_reg_mag_ssps_st$propchange),
+# R2=R2(predictions,bind_reg_mag_ssps_st$propchange)
+# )
+# 
+# #Build the model
+# model<-nls (propchange ~ a*I((log_mag+1)^b), data = bind_reg_mag_ssps_st, start = list (a=2, b=1.5))
+# #Make predictions
+# predictions<-model%>%predict(bind_reg_mag_ssps_st)
+# data.frame(
+# RMSE=RMSE(predictions,bind_reg_mag_ssps_st$propchange),
+# R2=R2(predictions,bind_reg_mag_ssps_st$propchange)
+# )
+
+
+#Build the model --------------------------- --------------------------- --------------------------- --------------------------- --------------------------- 
+model<-gam(propchange ~ s(log_mag), data = bind_reg_mag_ssps_st)
+#Make predictions
+predictions<-model%>%predict(bind_reg_mag_ssps_st)
+data.frame(
+RMSE=RMSE(predictions,bind_reg_mag_ssps_st$propchange),
+R2=R2(predictions,bind_reg_mag_ssps_st$propchange)
+)
+
+```
+
+
+#violin + scatter plotting
+#_tot_
+```{r}
+sizetext <- 7
+
+p1 <- ggplot(bind_mag_ssp1_st,aes(x=group,y=pred_cost_mean, fill = group))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47","no change" = "#4B4B4B")) +
+  scale_fill_manual(values = c("#FD978070","#C5E0B470")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+
+p2 <- ggplot(bind_mag_ssp2_st,aes(x=group,y=pred_cost_mean, fill = group))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47","no change" = "#4B4B4B")) +
+  scale_fill_manual(values = c("#FD978070","#C5E0B470")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+
+p3 <- ggplot(bind_mag_ssp5_st,aes(x=group,y=pred_cost_mean, fill = group))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47","no change" = "#4B4B4B")) +
+  scale_fill_manual(values = c("#FD978070","#C5E0B470")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+
+
+pdf(width = 4.2, height = 1.5, file = "fig6abc.pdf")
+grid.arrange(p1, p2, p3, ncol=3)
+
+dev.off()
+```
+#legend of violin + scatter
+```{r}
+pdf(width = 4.2, height = 1.5, file = "fig6abc-legend.pdf")
+sizetext <- 7
+
+ggplot(bind_mag_ssp1_st,aes(x=group,y=pred_cost_mean, fill = group))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47","no change" = "#4B4B4B")) +
+  scale_fill_manual(values = c("#FD978070","#C5E0B470")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "bottom")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+```
+
+
+
+
+#each ssp group data fitting===============================================================
+#non-linear regression plotting
+#_tot_
+```{r}
+pdf(width = 12, height = 4, file = "fig6d_ssp1_2_5.pdf")
+
+sizetext <- 12
+sizepoint <- 3
+sizename <- 2
+my.formula1 <- y ~ s(x, k = 3)
+my.formula2 <- y ~ x
+my.formula3 <- y ~ I((1/(x + 1)) * a) + b * x
+my.formula4 <- y ~ a * I((x + 1)^b)
+my.formula5 <- y ~ poly(x,3,raw=TRUE)
+
+
+ggplot(bind_reg_mag_ssps_st, aes(x = log_mag, y = propchange,color = factor(bind_reg_mag_ssps_st$group))) +
+  geom_point(size = sizepoint, alpha = 0.65)+
+  geom_text_repel(label = bind_reg_mag_ssps_st$show_Country_name, size = sizename,max.overlaps = 30, box.padding = 0.5,aes(color = factor(bind_reg_mag_ssps_st$group)))+
+   scale_color_manual(values = c("ssp1"="#FED3C2","ssp2"="#FD9780","ssp5"="#611320"), 'Climate scenarios')+
+  geom_hline(yintercept = 0, colour = "black", linewidth = 0.2, linetype = "dashed")+
+   # scale_x_continuous(labels = scales::comma)+
+   # scale_y_continuous(labels = scales::comma)+
+  
+  geom_smooth(method = "gam",
+              formula = my.formula1,
+              # color="#70AD47",
+              linewidth=1, se=T, alpha = 0.3) +
+  # geom_smooth(method = "lm",
+  #             formula = my.formula3,
+  #             color="#F78053",
+  #             linewidth=1, se=T, alpha = 0.2) +
+  # geom_smooth(method = "lm",
+  #             formula = my.formula4,
+  #             color="#3E7EBE",
+  #             linewidth=1, se=T, alpha = 0.2) +
+  # geom_smooth(method = "lm",
+  #             formula = my.formula5,
+  #             color="#FD9780",
+  #             linewidth=1, se=T, alpha = 0.2) +
+  # geom_smooth(method = "lm",
+  #             formula = my.formula2,
+  #             color="#4B4B4B",
+  #             linewidth=1, se=T, alpha = 0.2) +
+  
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "right",
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        panel.background = element_rect(fill = 'white', colour = 'white'), 
+        panel.grid.minor = element_line(color = 'white'), 
+        panel.grid.major = element_line(color = 'white'))+
+  labs(x="Potential proactive response capacity", y="Proportional change of\npotential total economic cost (%)")
+
+
+dev.off()
+```
+
+
+
+
+
+
+
+
+#all data fitting===============================================================
+#non-linear regression plotting
+#_tot_
+```{r}
+pdf(width = 9.5, height = 4, file = "fig6d_all_new.pdf")
+
+sizetext <- 12
+sizepoint <- 3
+sizename <- 2
+my.formula1 <- y ~ s(x, k = 3)
+my.formula2 <- y ~ x
+my.formula3 <- y ~ I((1/(x + 1)) * a) + b * x
+my.formula4 <- y ~ a * I((x + 1)^b)
+my.formula5 <- y ~ poly(x,3,raw=TRUE)
+
+
+ggplot(bind_reg_mag_ssps_st, aes(x = log_mag, y = propchange*100)) +
+  geom_point(size = sizepoint, alpha = 0.65, aes(color = factor(bind_reg_mag_ssps_st$group)))+
+  geom_text_repel(label = bind_reg_mag_ssps_st$show_Country_name, size = sizename,max.overlaps = 30, box.padding = 0.5,aes(color = factor(bind_reg_mag_ssps_st$group)))+
+   scale_color_manual(values = c("ssp1"="#FED3C2","ssp2"="#FD9780","ssp5"="#611320"), 'Climate scenarios')+
+  geom_hline(yintercept = 0, colour = "black", linewidth = 0.2, linetype = "dashed")+
+   # scale_x_continuous(labels = scales::comma)+
+   # scale_y_continuous(labels = scales::comma)+
+  
+  geom_smooth(method = "gam",
+              formula = my.formula1,
+              color="#70AD47",
+              linewidth=1, se=T, alpha = 0.4) +
+  # geom_smooth(method = "lm",
+  #             formula = my.formula3,
+  #             color="#F78053",
+  #             linewidth=1, se=T, alpha = 0.2) +
+  # geom_smooth(method = "lm",
+  #             formula = my.formula4,
+  #             color="#3E7EBE",
+  #             linewidth=1, se=T, alpha = 0.2) +
+  # geom_smooth(method = "lm",
+  #             formula = my.formula5,
+  #             color="#FD9780",
+  #             linewidth=1, se=T, alpha = 0.2) +
+  # geom_smooth(method = "lm",
+  #             formula = my.formula2,
+  #             color="#4B4B4B",
+  #             linewidth=1, se=T, alpha = 0.2) +
+  
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=0, hjust=1), legend.position = "right",
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        panel.background = element_rect(fill = 'white', colour = 'white'), 
+        panel.grid.minor = element_line(color = 'white'), 
+        panel.grid.major = element_line(color = 'white'))+
+  labs(x="Potential proactive response capacity", y="Proportional change of\npotential total economic cost (%)")
+
+
+dev.off()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#2024-10-14
+#each trend data fitting===============================================================
+#non-linear regression plotting
+#_tot_
+
+
+
+#choose models
+```{r}
+library (AICcmodavg); library (plyr); library (stringr)
+
+bind_reg_mag_ssps_st_pos <- subset(bind_reg_mag_ssps_st, bind_reg_mag_ssps_st$trend == "positive")
+bind_reg_mag_ssps_st_neg <- subset(bind_reg_mag_ssps_st, bind_reg_mag_ssps_st$trend == "negative")
+
+models_pos <- list (lm (propchange ~ log_mag, data = bind_reg_mag_ssps_st_pos), 
+                nls (propchange ~ I(log_mag^2*a)+ b*log_mag+c, data = bind_reg_mag_ssps_st_pos, start = list (a=1, b=1, c=0)),
+                nls (propchange ~ I((1/(log_mag+1)) * a)+ b, data = bind_reg_mag_ssps_st_pos, start = list(a =1, b =1)),
+                nls (propchange ~ I((1/(log_mag+1)) * a)+ b * log_mag, data = bind_reg_mag_ssps_st_pos, start = list(a =1, b =1)),
+                nls (propchange ~ a*I((log_mag+1)^b), data = bind_reg_mag_ssps_st_pos, start = list (a=2, b=1.5)),
+                lm  (propchange ~ poly(log_mag,3,raw=TRUE),data=bind_reg_mag_ssps_st_pos),
+                gam (propchange ~ s(log_mag), data = bind_reg_mag_ssps_st_pos))
+
+models_neg <- list (lm (propchange ~ log_mag, data = bind_reg_mag_ssps_st_neg), 
+                # nls (propchange ~ I(log_mag^2*a)+ b*log_mag+c, data = bind_reg_mag_ssps_st_neg, start = list (a=1, b=1, c=0)),
+                # nls (propchange ~ I((1/(log_mag+1)) * a)+ b, data = bind_reg_mag_ssps_st_neg, start = list(a =1, b =1)),
+                # nls (propchange ~ I((1/(log_mag+1)) * a)+ b * log_mag, data = bind_reg_mag_ssps_st_neg, start = list(a =1, b =1)),
+                # nls (propchange ~ a*I((log_mag+1)^b), data = bind_reg_mag_ssps_st_neg, start = list (a=2, b=1.5)),
+                # lm  (propchange ~ poly(log_mag,3,raw=TRUE),data=bind_reg_mag_ssps_st_neg),
+                gam (propchange ~ s(log_mag), data = bind_reg_mag_ssps_st_neg))
+
+# models[[1]] # check for the regression coefficient
+ldply (models_pos, function(mod){ data.frame (AICc = AICc(mod), AIC = AIC(mod), model = deparse(formula(mod))) })
+ldply (models_neg, function(mod){ data.frame (AICc = AICc(mod), AIC = AIC(mod), model = deparse(formula(mod))) })
+
+
+
+#1 deltaAICc: 12.4190 # 140.7691	140.6473	propchange ~ log_mag
+#2 deltaAICc: 13.9356 # 142.2857	142.0816	propchange ~ I(log_mag^2 * a) + b * log_mag + c		
+#3 deltaAICc: 15.0166 # 143.3667	143.2449	propchange ~ I((1/(log_mag + 1)) * a) + b		
+#4 deltaAICc: 12.2890 # 140.6391	140.5173	propchange ~ I((1/(log_mag + 1)) * a) + b * log_mag
+#5 deltaAICc: 11.9190 # 140.2691	140.1472	propchange ~ a * I((log_mag + 1)^b)
+#6 deltaAICc: 15.8752 # 144.2253	143.9176	propchange ~ poly(log_mag, 3, raw = TRUE)
+#7 deltaAICc:  0.0000 # 128.3501	127.1624	propchange ~ s(log_mag) ---------------------------the best
+
+
+# #then, we choose three models:
+# #linear:
+# lm(propchange ~ log_mag,data=bind_reg_mag_ssps_st)%>%
+#   summary()
+# #non-linear1:
+# nls (propchange ~ I((1/(log_mag+1)) * a)+ b * log_mag, data = bind_reg_mag_ssps_st, start = list(a =1, b =1))%>%
+#   summary()
+# #non-linear2:
+# nls (propchange ~ a*I((log_mag+1)^b), data = bind_reg_mag_ssps_st, start = list (a=2, b=1.5))%>%
+#   summary()
+
+
+
+# # alternative choice is the Polynomial model
+# lm(propchange~poly(log_mag,6,raw=TRUE),data=bind_reg_mag_ssps_st)%>%
+#   summary()
+
+#then, we choose the 3-degree model
+# formula=y~poly(x,5,raw=TRUE)
+
+
+
+#using gam to fit non-linear --------------------------- --------------------------- --------------------------- ---------------------------
+#all data
+gam(propchange ~ s(log_mag), data = bind_reg_mag_ssps_st)%>%
+  summary()
+
+
+#positive
+sub_bind_reg_mag_ssp1_st <- subset(bind_reg_mag_ssps_st,trend == "positive")
+gam(propchange ~ s(log_mag), data = sub_bind_reg_mag_ssp1_st)%>%
+  summary()
+#negative
+sub_bind_reg_mag_ssp2_st <- subset(bind_reg_mag_ssps_st,trend == "negative")
+gam(propchange ~ s(log_mag), data = sub_bind_reg_mag_ssp2_st)%>%
+  summary()
+
+```
+#Model performance
+```{r}
+#positive
+model<-gam(propchange ~ s(log_mag), data = sub_bind_reg_mag_ssp1_st)
+#Make predictions
+predictions<-model%>%predict(sub_bind_reg_mag_ssp1_st)
+data.frame(
+RMSE=RMSE(predictions,sub_bind_reg_mag_ssp1_st$propchange),
+R2=R2(predictions,sub_bind_reg_mag_ssp1_st$propchange)
+)
+
+#negative
+model<-gam(propchange ~ s(log_mag), data = sub_bind_reg_mag_ssp2_st)
+#Make predictions
+predictions<-model%>%predict(sub_bind_reg_mag_ssp2_st)
+data.frame(
+RMSE=RMSE(predictions,sub_bind_reg_mag_ssp2_st$propchange),
+R2=R2(predictions,sub_bind_reg_mag_ssp2_st$propchange)
+)
+```
+
+```{r}
+pdf(width = 12, height = 4, file = "fig6d_positive_negat.pdf")
+
+sizetext <- 12
+sizepoint <- 3
+sizename <- 2
+my.formula1 <- y ~ s(x, k = 3)
+my.formula2 <- y ~ x
+my.formula3 <- y ~ I((1/(x + 1)) * a) + b * x
+my.formula4 <- y ~ a * I((x + 1)^b)
+my.formula5 <- y ~ poly(x,3,raw=TRUE)
+
+
+ggplot(bind_reg_mag_ssps_st, aes(x = log_mag, y = propchange,fill = factor(bind_reg_mag_ssps_st$trend))) +
+  geom_point(size = sizepoint, alpha = 0.65,aes(color = factor(bind_reg_mag_ssps_st$group)))+
+  geom_text_repel(label = bind_reg_mag_ssps_st$show_Country_name, size = sizename,max.overlaps = 30, box.padding = 0.5,aes(color = factor(bind_reg_mag_ssps_st$group)))+
+   scale_color_manual(values = c("ssp1"="#FED3C2","ssp2"="#FD9780","ssp5"="#611320"))+
+   scale_fill_manual(values = c("positive"="#7772B2","negative"="#70AD47"))+
+  geom_hline(yintercept = 0, colour = "black", linewidth = 0.2, linetype = "dashed")+
+   # scale_x_continuous(labels = scales::comma)+
+   # scale_y_continuous(labels = scales::comma)+
+  
+  geom_smooth(method = "gam",
+              formula = my.formula1,
+              # color="#70AD47",
+              linewidth=1, se=T, alpha = 0.3) +
+  # geom_smooth(method = "lm",
+  #             formula = my.formula3,
+  #             color="#F78053",
+  #             linewidth=1, se=T, alpha = 0.2) +
+  # geom_smooth(method = "lm",
+  #             formula = my.formula4,
+  #             color="#3E7EBE",
+  #             linewidth=1, se=T, alpha = 0.2) +
+  # geom_smooth(method = "lm",
+  #             formula = my.formula5,
+  #             color="#FD9780",
+  #             linewidth=1, se=T, alpha = 0.2) +
+  # geom_smooth(method = "lm",
+  #             formula = my.formula2,
+  #             color="#4B4B4B",
+  #             linewidth=1, se=T, alpha = 0.2) +
+  
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "right",
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        panel.background = element_rect(fill = 'white', colour = 'white'), 
+        panel.grid.minor = element_line(color = 'white'), 
+        panel.grid.major = element_line(color = 'white'))+
+  labs(x="Potential proactive response capacity", y="Proportional change of\npotential total economic cost (%)")
+
+
+dev.off()
+```
+
+
+
+
+
+
+
+
+#2024-10-15
+```{r}
+bind_reg_mag_ssps_st_pos_neg_ssp1 <- subset(bind_reg_mag_ssps_st, bind_reg_mag_ssps_st$group == "ssp1")
+bind_reg_mag_ssps_st_pos_neg_ssp1 %>%
+  wilcox_test(Post_invasion_management ~ trend, paired = FALSE)
+
+```
+#plotting post-invasion management between negative and positive changes
+```{r}
+library(ggpubr)
+pdf(width = 2, height = 4, file = "Extended Data Fig5.pdf")
+
+sizetext <- 7
+compare_list <- list(
+    c("Negative","Positive"))
+
+bind_reg_mag_ssps_st_pos_neg_ssp1$trend <- as.factor(bind_reg_mag_ssps_st_pos_neg_ssp1$trend)
+ggplot(bind_reg_mag_ssps_st_pos_neg_ssp1,aes(x=trend,y=Post_invasion_management, fill = trend))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  # geom_line(aes(group=Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  # scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47","no change" = "#4B4B4B")) +
+  scale_fill_manual(values = c("Positive" = "#FD978070","Negative" = "#C5E0B470")) +
+  # scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="", y="Count of post-invasion management")+
+  stat_compare_means(
+    comparisons = compare_list,
+    method = "wilcox.test",paired = F,
+    label = "p.signif")
+
+dev.off()
+```
+

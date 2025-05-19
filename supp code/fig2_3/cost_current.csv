@@ -1,0 +1,662 @@
+﻿Country_name,pred_cost_mean,Type_of_cost_merged,sub_Country_name,sub_pred_cost_mean,event_Country_name,event_pred_cost_mean
+Argentina,7947.776964,Damage,Argentina,7045.239909,Canada,7099.312765
+Australia,23864.03355,Damage,Australia,14632.45677,United States,16.4369052
+Austria,468.3358729,Damage,Belize,782.474301,Cambodia,222.7621354
+Belize,918.5327009,Damage,Benin,1349.250113,Malaysia,256.4208635
+Benin,1349.367594,Damage,Bhutan,658.8765652,Thailand,307.4222659
+Bhutan,658.8765652,Damage,Bolivia,1393.907449,Thailand,307.4222659
+Bolivia,1642.067573,Damage,Brazil,3274.341009,Vietnam,338.491723
+Brazil,4934.215406,Damage,Brunei,732.2287975,Thailand,307.4222659
+Brunei,732.2287975,Damage,Cambodia,3836.941598,Belize,136.0583999
+Cambodia,4282.465869,Damage,Cameroon,1462.74373,Bolivia,248.1601236
+Cameroon,1462.74373,Damage,Canada,46794.6954,Chile,295.8637106
+Canada,48317.23429,Damage,Chile,1876.78214,Cuba,314.3417375
+Chile,2172.680256,Damage,China,35393.62804,Ecuador,227.0919246
+China,36613.55708,Damage,Cuba,1928.735352,Guatemala,215.3455622
+Colombia,298.1411102,Damage,Democratic Republic of the Congo,3141.031842,Nicaragua,370.1681713
+Cuba,2273.949834,Damage,Ethiopia,2373.289258,Panama,187.1414263
+Democratic Republic of the Congo,3141.031842,Damage,Fiji,12.66395834,Paraguay,245.0123196
+Denmark,14.50089187,Damage,Germany,643.0181045,Peru,263.0899383
+Ecuador,227.0919246,Damage,Ghana,1808.907766,Uruguay,219.9335507
+Ethiopia,2373.289258,Damage,Guatemala,1240.354115,United States,416.7734948
+Fiji,47.68851316,Damage,India,20479.83466,Brazil,549.5184944
+Finland,7.635657331,Damage,Indonesia,5328.142585,Brazil,549.5184944
+France,428.332672,Damage,Italy,30.76381703,Colombia,298.1411102
+Germany,1282.084346,Damage,Japan,871.0535493,Mexico,503.5174356
+Ghana,1836.85052,Damage,Kenya,602.1989424,Malaysia,256.4208635
+Guatemala,1455.699677,Damage,Laos,1207.376607,Philippines,280.0671077
+Iceland,9.303118722,Damage,Malawi,2598.200308,Thailand,307.4222659
+India,21511.20923,Damage,Malaysia,4446.152917,United States,416.7734948
+Indonesia,5775.23371,Damage,Mexico,3060.882888,Cambodia,222.7621354
+Italy,93.96026451,Damage,Mozambique,2495.606804,Indonesia,447.0911247
+Japan,1139.874484,Damage,Myanmar,1559.203657,Peru,263.0899383
+Kenya,602.3499254,Damage,Netherlands,54.77047526,Singapore,138.1217039
+Laos,1207.376607,Damage,New Zealand,1973.168762,United States,416.7734948
+Lithuania,0.819643181,Damage,Nigeria,1868.270481,United States,416.7734948
+Malawi,2598.200308,Damage,Norway,1642.211738,Thailand,307.4222659
+Malaysia,4958.994644,Damage,Pakistan,53.33025162,Thailand,307.4222659
+Malta,1.043049942,Damage,Paraguay,1381.649166,Bhutan,658.8765652
+Mexico,3621.263646,Damage,Peru,3097.646412,Brunei,732.2287975
+Mozambique,2495.606804,Damage,Philippines,6906.676217,Cambodia,1278.980533
+Myanmar,1559.203657,Damage,Portugal,2.312067159,India,2733.557698
+Netherlands,96.06719198,Damage,Singapore,2519.958909,India,2733.557698
+New Zealand,4128.934811,Damage,Suriname,948.9193665,India,2733.557698
+Nicaragua,370.1681713,Damage,Sweden,171.7260777,India,2733.557698
+Nigeria,1868.270481,Damage,Tanzania,3305.79147,Indonesia,2574.834251
+Norway,1683.792454,Damage,Thailand,8817.5358,Indonesia,2574.834251
+Pakistan,53.33025162,Damage,Timor-Leste,809.9023056,Laos,1207.376607
+Panama,187.1414263,Damage,Uganda,2936.194606,Malaysia,1482.050972
+Paraguay,1626.661486,Damage,UK,426.9786037,Malaysia,1482.050972
+Peru,4244.396527,Damage,Uruguay,1250.877013,Myanmar,1559.203657
+Philippines,7351.460495,Damage,USA,105384.9065,Philippines,1622.521402
+Portugal,2.312067159,Damage,Vietnam,5964.939118,Philippines,1622.521402
+Singapore,2658.080613,Damage,Zambia,1220.215258,Singapore,839.9863031
+Spain,137.9521926,Damage,Zimbabwe,1207.609998,Singapore,839.9863031
+Suriname,948.9193665,Management,Argentina,902.5370548,Singapore,839.9863031
+Sweden,184.4632976,Management,Australia,2220.421597,Thailand,1763.50716
+Tanzania,3307.685816,Management,Austria,468.3358729,Thailand,1763.50716
+Thailand,10662.0694,Management,Belize,136.0583999,Thailand,1763.50716
+Timor-Leste,809.9023056,Management,Benin,0.117480518,Thailand,1763.50716
+Togo,0.099139012,Management,Bolivia,248.1601236,Timor-Leste,809.9023056
+Uganda,2936.194606,Management,Brazil,1659.874397,Vietnam,1944.79328
+UK,633.6154017,Management,Cambodia,445.5242709,Vietnam,1944.79328
+Uruguay,1470.810564,Management,Canada,1522.538887,Belize,782.474301
+USA,256879.6131,Management,Chile,295.8981161,Bolivia,1393.907449
+Venezuela,0.019014146,Management,China,876.5705815,Canada,628.7684694
+Vietnam,6303.430841,Management,Colombia,298.1411102,Chile,1712.355414
+Zambia,1239.180087,Management,Cuba,345.2144817,Guatemala,1240.354115
+Zimbabwe,1207.609998,Management,Denmark,14.50089187,Paraguay,1381.649166
+,,Management,Ecuador,227.0919246,Peru,1498.256913
+,,Management,Fiji,12.27415648,Peru,1498.256913
+,,Management,Finland,7.635657331,United States,2383.338161
+,,Management,France,428.332672,United States,2383.338161
+,,Management,Germany,639.066241,Suriname,948.9193665
+,,Management,Ghana,27.94275411,Uruguay,1250.877013
+,,Management,Guatemala,215.3455622,India,2733.557698
+,,Management,Iceland,9.303118722,United States,2383.338161
+,,Management,India,1031.374574,Malaysia,1482.050972
+,,Management,Indonesia,447.0911247,Mexico,2864.856601
+,,Management,Italy,63.19644748,Brazil,3112.174861
+,,Management,Japan,268.8209346,China,2700.789702
+,,Management,Kenya,0.150983047,Thailand,1763.50716
+,,Management,Lithuania,0.819643181,Cambodia,1278.980533
+,,Management,Malaysia,512.841727,Cambodia,1278.980533
+,,Management,Malta,1.043049942,Vietnam,1944.79328
+,,Management,Mexico,560.3807583,United States,2383.338161
+,,Management,Netherlands,41.29671672,Cuba,1813.513042
+,,Management,New Zealand,2155.766049,Australia,7.861238108
+,,Management,Nicaragua,370.1681713,Argentina,52.13649008
+,,Management,Norway,41.58071584,Argentina,52.13649008
+,,Management,Panama,187.1414263,Argentina,52.13649008
+,,Management,Paraguay,245.0123196,Argentina,52.13649008
+,,Management,Peru,1146.750115,Argentina,52.13649008
+,,Management,Philippines,280.0671077,Argentina,52.13649008
+,,Management,Singapore,138.1217039,Argentina,52.13649008
+,,Management,Spain,137.9521926,Argentina,52.13649008
+,,Management,Sweden,12.73721988,Argentina,52.13649008
+,,Management,Tanzania,1.894345953,Brazil,81.08307391
+,,Management,Thailand,1844.533596,Brazil,81.08307391
+,,Management,Togo,0.099139012,Argentina,345.4732734
+,,Management,UK,189.6083108,Argentina,345.4732734
+,,Management,Uruguay,219.9335507,Brazil,537.2305328
+,,Management,USA,21614.26603,Indonesia,178.474084
+,,Management,Venezuela,0.019014146,Vietnam,130.5592784
+,,Management,Vietnam,338.491723,Peru,101.1325847
+,,Mixed,Australia,7011.155178,United States,143.4229208
+,,Mixed,China,343.3584557,Cuba,115.2223095
+,,Mixed,Fiji,22.75039834,United States,3.654125598
+,,Mixed,Philippines,164.7171707,France,1.507390572
+,,Mixed,UK,17.02848723,Italy,1.045842011
+,,Mixed,USA,123947.7353,Spain,0.967641755
+,,Mixed,Zambia,18.96482874,New Zealand,968.6172225
+,,Unspecified,USA,5932.705278,Canada,99.65245502
+,,,,,United States,127.5185592
+,,,,,United States,1092.1545
+,,,,,India,0.000553994
+,,,,,Netherlands,0.842537338
+,,,,,Argentina,96.55941325
+,,,,,Argentina,12.26366051
+,,,,,Japan,0.12322098
+,,,,,Japan,0.12322098
+,,,,,Peru,620.5702386
+,,,,,Italy,43.59190965
+,,,,,Italy,3.313340238
+,,,,,Italy,3.313340238
+,,,,,Austria,468.3358729
+,,,,,France,423.7807188
+,,,,,Germany,505.4466011
+,,,,,Canada,1422.886432
+,,,,,United States,1819.454483
+,,,,,United States,1819.454483
+,,,,,United States,1819.454483
+,,,,,Canada,3477.807879
+,,,,,United States,1047.126179
+,,,,,Argentina,117.4633758
+,,,,,United States,157.3516462
+,,,,,United States,77487.33724
+,,,,,United States,1343.169503
+,,,,,Argentina,14.26422947
+,,,,,United States,312.2192976
+,,,,,United States,312.2192976
+,,,,,United States,312.2192976
+,,,,,United States,312.2192976
+,,,,,Sweden,171.7260777
+,,,,,Australia,742.294233
+,,,,,Australia,264.5415948
+,,,,,Australia,324.7148901
+,,,,,Australia,50.13739413
+,,,,,Australia,50.13739413
+,,,,,United Kingdom,0.596180758
+,,,,,United Kingdom,0.596180758
+,,,,,United States,2.931982385
+,,,,,United Kingdom,1.870343868
+,,,,,United Kingdom,3.046361073
+,,,,,China,29.14293715
+,,,,,Sweden,0.732198171
+,,,,,Japan,2.553117767
+,,,,,Japan,2.553117767
+,,,,,Japan,2.553117767
+,,,,,Japan,2.553117767
+,,,,,China,13920.51016
+,,,,,China,13920.51016
+,,,,,China,144.8914558
+,,,,,Mexico,51.44248492
+,,,,,Mexico,196.0262872
+,,,,,Mexico,2.706545739
+,,,,,Mexico,0.003369765
+,,,,,Mexico,0.003369765
+,,,,,Mexico,0.003369765
+,,,,,Mexico,0.003369765
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Japan,0.189560591
+,,,,,Australia,1.984917886
+,,,,,Australia,1.984917886
+,,,,,Australia,1.984917886
+,,,,,Australia,1.984917886
+,,,,,Australia,1.984917886
+,,,,,Australia,1.984917886
+,,,,,Australia,1.984917886
+,,,,,Australia,1.984917886
+,,,,,Australia,0.979011383
+,,,,,Australia,0.26918811
+,,,,,Australia,0.26918811
+,,,,,Australia,0.26918811
+,,,,,Australia,0.26918811
+,,,,,Australia,0.26918811
+,,,,,Australia,0.054393291
+,,,,,Australia,6.646670141
+,,,,,Australia,7.095018276
+,,,,,Australia,7.095018276
+,,,,,Australia,0.95125769
+,,,,,Australia,0.95125769
+,,,,,Australia,0.95125769
+,,,,,Australia,0.95125769
+,,,,,Australia,0.95125769
+,,,,,Australia,0.95125769
+,,,,,Australia,0.95125769
+,,,,,Australia,0.95125769
+,,,,,Australia,0.95125769
+,,,,,Australia,0.95125769
+,,,,,Australia,0.95125769
+,,,,,Australia,0.95125769
+,,,,,Germany,62.43424869
+,,,,,Australia,86.00819853
+,,,,,Australia,86.00819853
+,,,,,Australia,1468.50447
+,,,,,United States,3084.076999
+,,,,,United States,2228.032017
+,,,,,Australia,15.07768515
+,,,,,Australia,15.07768515
+,,,,,Australia,15.07768515
+,,,,,Australia,15.07768515
+,,,,,Australia,15.07768515
+,,,,,Australia,15.07768515
+,,,,,Australia,15.07768515
+,,,,,Australia,1.730842897
+,,,,,Australia,1.730842897
+,,,,,Australia,8.637027641
+,,,,,New Zealand,8.192817741
+,,,,,Australia,8.637027641
+,,,,,Australia,8.637027641
+,,,,,Australia,18.66211965
+,,,,,Australia,18.66211965
+,,,,,Chile,0.639465636
+,,,,,Chile,0.064335058
+,,,,,Chile,0.690947955
+,,,,,Argentina,378.3075571
+,,,,,Argentina,40.71991111
+,,,,,Canada,1153.088925
+,,,,,Japan,0.040888997
+,,,,,Japan,0.040888997
+,,,,,Ethiopia,524.5393056
+,,,,,Kenya,602.1989424
+,,,,,Malawi,649.2997062
+,,,,,Tanzania,810.9708657
+,,,,,Australia,9182.226
+,,,,,United States,20713.01749
+,,,,,United States,20713.01749
+,,,,,Fiji,6.331979169
+,,,,,Fiji,6.331979169
+,,,,,Fiji,4.091385493
+,,,,,Fiji,4.091385493
+,,,,,Fiji,4.091385493
+,,,,,Fiji,22.75039834
+,,,,,Portugal,0.481686537
+,,,,,China,3941.659541
+,,,,,United Kingdom,0.04223349
+,,,,,United Kingdom,0.051126948
+,,,,,United Kingdom,0.731941764
+,,,,,Australia,1.7206388
+,,,,,China,3.959487998
+,,,,,United Kingdom,0.62427177
+,,,,,United Kingdom,0.62427177
+,,,,,United Kingdom,0.162008483
+,,,,,United Kingdom,0.162008483
+,,,,,United Kingdom,11.15707893
+,,,,,United States,4842.586676
+,,,,,United States,4589.535775
+,,,,,United States,133.901108
+,,,,,United Kingdom,22.94376275
+,,,,,Germany,3.840068969
+,,,,,Germany,4.645770261
+,,,,,Germany,4.645770261
+,,,,,Germany,4.645770261
+,,,,,Germany,2.986308362
+,,,,,Australia,1.036607891
+,,,,,Australia,11.28079566
+,,,,,Australia,0.638697038
+,,,,,Spain,0.491870288
+,,,,,Australia,1167.215657
+,,,,,Australia,1167.215657
+,,,,,Australia,1167.215657
+,,,,,Australia,1167.215657
+,,,,,Australia,1167.215657
+,,,,,Australia,1167.215657
+,,,,,Norway,591.4049626
+,,,,,Japan,0.835067702
+,,,,,Japan,0.835067702
+,,,,,Japan,0.835067702
+,,,,,Japan,0.835067702
+,,,,,Norway,525.4033879
+,,,,,Norway,525.4033879
+,,,,,Canada,16658.24553
+,,,,,Australia,858.2615311
+,,,,,New Zealand,1.927831987
+,,,,,Japan,0.138454049
+,,,,,Japan,0.138454049
+,,,,,Japan,0.138454049
+,,,,,Japan,0.138454049
+,,,,,Japan,0.138454049
+,,,,,Japan,0.138454049
+,,,,,Japan,0.138454049
+,,,,,Japan,0.138454049
+,,,,,Japan,0.138454049
+,,,,,Mexico,0.440989738
+,,,,,United States,8178.488545
+,,,,,China,20.42722447
+,,,,,India,24.610636
+,,,,,China,20.80918065
+,,,,,China,16.86042478
+,,,,,United Kingdom,4.095223345
+,,,,,United Kingdom,4.095223345
+,,,,,Finland,7.635657331
+,,,,,Argentina,13.15275998
+,,,,,Brazil,23.60687574
+,,,,,Japan,0.4973076
+,,,,,Japan,0.4973076
+,,,,,Japan,0.4973076
+,,,,,Japan,0.4973076
+,,,,,Japan,0.4973076
+,,,,,Japan,0.4973076
+,,,,,Japan,0.4973076
+,,,,,Japan,0.4973076
+,,,,,New Zealand,0.647934557
+,,,,,New Zealand,0.647934557
+,,,,,New Zealand,0.647934557
+,,,,,New Zealand,0.647934557
+,,,,,Norway,30.41703324
+,,,,,China,889.3492993
+,,,,,Cuba,30.8727442
+,,,,,New Zealand,587.019546
+,,,,,New Zealand,587.019546
+,,,,,New Zealand,69.41968672
+,,,,,United Kingdom,0.146854034
+,,,,,United States,98.17828833
+,,,,,United States,98.17828833
+,,,,,United States,98.17828833
+,,,,,United States,98.17828833
+,,,,,United States,98.17828833
+,,,,,Canada,3998.390674
+,,,,,United States,4691.130804
+,,,,,New Zealand,729.7076855
+,,,,,New Zealand,19.37267252
+,,,,,Mexico,0.103248954
+,,,,,Japan,0.08837695
+,,,,,Japan,0.08837695
+,,,,,Japan,0.08837695
+,,,,,Japan,0.08837695
+,,,,,Japan,0.08837695
+,,,,,Japan,0.08837695
+,,,,,Japan,0.08837695
+,,,,,Japan,0.08837695
+,,,,,Japan,0.08837695
+,,,,,Japan,0.08837695
+,,,,,Japan,0.08837695
+,,,,,Japan,0.08837695
+,,,,,Japan,0.08837695
+,,,,,Australia,39.21868689
+,,,,,New Zealand,5.531955069
+,,,,,United Kingdom,1.452060361
+,,,,,United States,2.872777733
+,,,,,Italy,2.604340884
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Japan,2.691408754
+,,,,,Italy,0.566991037
+,,,,,Italy,6.400982019
+,,,,,Italy,27.59248511
+,,,,,Sweden,10.561173
+,,,,,Germany,7.510231431
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Spain,8.387373955
+,,,,,Denmark,6.383613922
+,,,,,Denmark,6.383613922
+,,,,,Iceland,4.651559361
+,,,,,Iceland,4.651559361
+,,,,,Norway,9.637064849
+,,,,,United Kingdom,1.319279477
+,,,,,Chile,10.34582436
+,,,,,Chile,10.34582436
+,,,,,Japan,597.2739003
+,,,,,Lithuania,0.819643181
+,,,,,Denmark,0.866832016
+,,,,,Denmark,0.866832016
+,,,,,Sweden,1.44384871
+,,,,,Norway,0.763694459
+,,,,,Germany,36.4917177
+,,,,,Germany,270.0901
+,,,,,Germany,270.0901
+,,,,,United Kingdom,12.16363585
+,,,,,Germany,23.37577032
+,,,,,Germany,23.37577032
+,,,,,Netherlands,20.64835836
+,,,,,Netherlands,20.64835836
+,,,,,Germany,10.6673712
+,,,,,Germany,3.749793114
+,,,,,Germany,12.79080763
+,,,,,Australia,311.5018021
+,,,,,Australia,311.5018021
+,,,,,Australia,311.5018021
+,,,,,Australia,311.5018021
+,,,,,Australia,311.5018021
+,,,,,United Kingdom,255.1659682
+,,,,,Australia,311.5018021
+,,,,,Germany,28.9318975
+,,,,,Australia,25.38871257
+,,,,,Australia,7.722309628
+,,,,,Australia,7.722309628
+,,,,,United Kingdom,6.722734591
+,,,,,United Kingdom,6.722734591
+,,,,,United Kingdom,6.722734591
+,,,,,United Kingdom,6.722734591
+,,,,,United Kingdom,10.16288652
+,,,,,United Kingdom,116.903356
+,,,,,United Kingdom,4.849328569
+,,,,,United Kingdom,4.849328569
+,,,,,United Kingdom,4.849328569
+,,,,,United Kingdom,4.849328569
+,,,,,United Kingdom,0.500444623
+,,,,,United Kingdom,1.045253153
+,,,,,Japan,0.831132686
+,,,,,Japan,0.831132686
+,,,,,Japan,0.831132686
+,,,,,Japan,0.831132686
+,,,,,United Kingdom,1.045253153
+,,,,,United Kingdom,3.25789449
+,,,,,United Kingdom,2.452462677
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,Japan,6.580774552
+,,,,,India,1031.37402
+,,,,,United States,117.4115875
+,,,,,United States,83.55392743
+,,,,,Canada,1404.479573
+,,,,,Australia,0.263345102
+,,,,,Australia,0.263345102
+,,,,,Germany,6.366248284
+,,,,,India,6787.435531
+,,,,,Norway,0.573741663
+,,,,,China,144.9373503
+,,,,,Philippines,3661.633412
+,,,,,Philippines,164.7171707
+,,,,,Portugal,1.830380623
+,,,,,Italy,5.531033331
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,5.628236365
+,,,,,Japan,0.02390984
+,,,,,Japan,0.02390984
+,,,,,Japan,0.02390984
+,,,,,Japan,0.02390984
+,,,,,Japan,0.02390984
+,,,,,Japan,0.02390984
+,,,,,Japan,0.02390984
+,,,,,Togo,0.099139012
+,,,,,Benin,0.117480518
+,,,,,Kenya,0.150983047
+,,,,,United Kingdom,0.411395147
+,,,,,United Kingdom,0.411395147
+,,,,,Netherlands,53.92793792
+,,,,,Pakistan,53.33025162
+,,,,,United Kingdom,0.324765092
+,,,,,Mexico,2.156574363
+,,,,,New Zealand,2.509903577
+,,,,,Malta,1.043049942
+,,,,,United Kingdom,3.151900878
+,,,,,United Kingdom,70.57097679
+,,,,,United Kingdom,11.31813006
+,,,,,Australia,5.27191868
+,,,,,United States,72775.63475
+,,,,,Australia,11.79999546
+,,,,,Australia,11.79999546
+,,,,,Australia,11.79999546
+,,,,,Australia,11.79999546
+,,,,,United States,14762.71988
+,,,,,Spain,10.68207125
+,,,,,United States,69.58615696
+,,,,,United States,74.36483597
+,,,,,United Kingdom,5.11648188
+,,,,,United Kingdom,5.11648188
+,,,,,United Kingdom,3.501496267
+,,,,,United Kingdom,9.524244093
+,,,,,United Kingdom,9.524244093
+,,,,,United Kingdom,9.255463018
+,,,,,Australia,195.5069873
+,,,,,Argentina,7.281600185
+,,,,,Japan,30.31184714
+,,,,,Japan,30.31184714
+,,,,,Japan,30.31184714
+,,,,,Japan,30.31184714
+,,,,,Japan,30.31184714
+,,,,,Japan,30.31184714
+,,,,,Japan,30.31184714
+,,,,,Japan,30.31184714
+,,,,,Australia,27.84949032
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,China,50.57118569
+,,,,,Zimbabwe,1207.609998
+,,,,,Mozambique,2495.606804
+,,,,,Democratic Republic of the Congo,3141.031842
+,,,,,Benin,1349.250113
+,,,,,Zambia,1220.215258
+,,,,,Ghana,1808.907766
+,,,,,Cameroon,1462.74373
+,,,,,Uganda,2936.194606
+,,,,,Malawi,1948.900602
+,,,,,Ethiopia,1848.749953
+,,,,,Tanzania,2494.820604
+,,,,,Nigeria,1868.270481
+,,,,,Ghana,27.94275411
+,,,,,Zambia,18.96482874
+,,,,,Canada,12374.60158
+,,,,,Australia,150.2677599
+,,,,,Australia,150.2677599
+,,,,,Australia,150.2677599
+,,,,,Australia,150.2677599
+,,,,,Chile,33.61585893
+,,,,,Australia,150.2677599
+,,,,,Australia,150.2677599
+,,,,,Australia,4.889675021
+,,,,,Chile,2.331384063
+,,,,,Argentina,3050.572264
+,,,,,Argentina,3050.572264
+,,,,,Australia,4.622582546
+,,,,,Australia,4.622582546
+,,,,,Argentina,3.222485482
+,,,,,Argentina,3.222485482
+,,,,,Chile,9.572445479
+,,,,,Chile,9.572445479
+,,,,,Chile,9.572445479
+,,,,,New Zealand,742.8630142
+,,,,,United Kingdom,1.343304345
+,,,,,United Kingdom,1.343304345
+,,,,,Norway,0.18918163
+,,,,,Japan,0.229387291
+,,,,,Japan,0.229387291
+,,,,,Japan,0.229387291
+,,,,,Japan,0.229387291
+,,,,,Japan,0.229387291
+,,,,,Japan,0.229387291
+,,,,,New Zealand,50.25682482
+,,,,,New Zealand,50.25682482
+,,,,,New Zealand,50.25682482
+,,,,,New Zealand,50.25682482
+,,,,,New Zealand,50.25682482
+,,,,,New Zealand,50.25682482
+,,,,,New Zealand,50.25682482
+,,,,,New Zealand,50.25682482
+,,,,,Tanzania,1.894345953
+,,,,,New Zealand,0.002298147
+,,,,,France,0.576228474
+,,,,,Japan,0.144138764
+,,,,,France,0.308541772
+,,,,,France,0.308541772
+,,,,,France,0.308541772
+,,,,,France,0.308541772
+,,,,,France,0.308541772
+,,,,,France,0.308541772
+,,,,,France,0.308541772
+,,,,,France,0.308541772
+,,,,,Japan,0.276808573
+,,,,,Japan,0.276808573
+,,,,,Japan,0.276808573
+,,,,,Japan,0.276808573
+,,,,,Japan,0.276808573
+,,,,,Japan,0.276808573
+,,,,,Japan,0.276808573
+,,,,,Japan,0.276808573
+,,,,,Japan,0.276808573
+,,,,,Japan,0.276808573
+,,,,,Japan,0.276808573
+,,,,,Japan,0.276808573
+,,,,,Japan,0.276808573
+,,,,,Chile,0.034405494
+,,,,,Chile,19.41893719
+,,,,,Chile,19.41893719
+,,,,,Chile,19.41893719
+,,,,,Chile,19.41893719
+,,,,,New Zealand,2.1042945
+,,,,,Australia,26.33861722
+,,,,,Australia,26.33861722
+,,,,,Australia,26.33861722
+,,,,,Australia,32.76292006
+,,,,,Australia,249.1585745
+,,,,,Australia,0.519788366
+,,,,,Venezuela,0.019014146

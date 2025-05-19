@@ -1,0 +1,156 @@
+---
+title: "map_management"
+author: "Shimin Gu"
+date: "2024-08-30"
+output: html_document
+---
+
+```{r}
+#load package
+library(sf)
+library(spData)
+library(ggplot2)
+library(ggthemes)
+library(dplyr)
+library(readxl)
+library(tidyverse)
+library(stats)
+library(gridExtra)
+library(grid)
+
+#load world map 
+world_mag_ssp1 <- map_data('world')%>%filter(region!="Antarctica")
+world_mag_ssp2 <- map_data('world')%>%filter(region!="Antarctica")
+world_mag_ssp5 <- map_data('world')%>%filter(region!="Antarctica")
+
+#load data
+bind_reg_mag_ssps_st <- read.csv("bind_reg_mag_ssps_st_new.csv", sep = ",", header = T)
+sub_bind_reg_mag_ssp1_st <- subset(bind_reg_mag_ssps_st,group == "ssp1")
+sub_bind_reg_mag_ssp2_st <- subset(bind_reg_mag_ssps_st,group == "ssp2")
+sub_bind_reg_mag_ssp5_st <- subset(bind_reg_mag_ssps_st,group == "ssp5")
+```
+
+```{r}
+
+#sub_bind_reg_mag_ssp1_st
+for (i in 1:nrow(sub_bind_reg_mag_ssp1_st)){
+  if (sub_bind_reg_mag_ssp1_st$Country_name[i]=="Democratic Republic of the Congo"){sub_bind_reg_mag_ssp1_st$Country_name[i] = "D.R. Congo"}
+  if (sub_bind_reg_mag_ssp1_st$Country_name[i]=="United States"){sub_bind_reg_mag_ssp1_st$Country_name[i] = "USA"}
+  if (sub_bind_reg_mag_ssp1_st$Country_name[i]=="United Kingdom"){sub_bind_reg_mag_ssp1_st$Country_name[i] = "UK"}
+}
+
+world_mag_ssp1$propchange <- NA
+for (i in 1:nrow(world_mag_ssp1)){
+  for (j in 1:nrow(sub_bind_reg_mag_ssp1_st)){
+    if (world_mag_ssp1$region[i]==sub_bind_reg_mag_ssp1_st$Country_name[j]){world_mag_ssp1$propchange[i]=sub_bind_reg_mag_ssp1_st$propchange[j];break}
+  }
+}
+world_mag_ssp1$color_group <- 0
+for (i in 1:nrow(world_mag_ssp1)){
+  if(is.na(world_mag_ssp1$propchange[i])==TRUE){world_mag_ssp1$color_group[i]='a1'} #No data
+  if(!is.na(world_mag_ssp1$propchange[i])==TRUE && world_mag_ssp1$propchange[i] < -1){world_mag_ssp1$color_group[i]='a2'} #<-1
+  if(!is.na(world_mag_ssp1$propchange[i])==TRUE && -1 <= world_mag_ssp1$propchange[i] && world_mag_ssp1$propchange[i] <= -0.5){world_mag_ssp1$color_group[i]='a3'} #-1 ~ -0.5
+  if(!is.na(world_mag_ssp1$propchange[i])==TRUE && -0.5 < world_mag_ssp1$propchange[i] && world_mag_ssp1$propchange[i] <= 0){world_mag_ssp1$color_group[i]='a4'} #-0.5 ~ 0
+  if(!is.na(world_mag_ssp1$propchange[i])==TRUE && 0 < world_mag_ssp1$propchange[i] && world_mag_ssp1$propchange[i] <= 0.5){world_mag_ssp1$color_group[i]='a5'} # 0 ~ 0.5
+  if(!is.na(world_mag_ssp1$propchange[i])==TRUE && 0.5 < world_mag_ssp1$propchange[i] && world_mag_ssp1$propchange[i] <= 1){world_mag_ssp1$color_group[i]='a6'} # 0.5 ~ 1
+  if(!is.na(world_mag_ssp1$propchange[i])==TRUE && 1 < world_mag_ssp1$propchange[i]){world_mag_ssp1$color_group[i]='a7'}
+} # >1
+
+
+
+
+#sub_bind_reg_mag_ssp2_st
+for (i in 1:nrow(sub_bind_reg_mag_ssp2_st)){
+  if (sub_bind_reg_mag_ssp2_st$Country_name[i]=="Democratic Republic of the Congo"){sub_bind_reg_mag_ssp2_st$Country_name[i] = "D.R. Congo"}
+  if (sub_bind_reg_mag_ssp2_st$Country_name[i]=="United States"){sub_bind_reg_mag_ssp2_st$Country_name[i] = "USA"}
+  if (sub_bind_reg_mag_ssp2_st$Country_name[i]=="United Kingdom"){sub_bind_reg_mag_ssp2_st$Country_name[i] = "UK"}
+}
+
+world_mag_ssp2$propchange <- NA
+for (i in 1:nrow(world_mag_ssp2)){
+  for (j in 1:nrow(sub_bind_reg_mag_ssp2_st)){
+    if (world_mag_ssp2$region[i]==sub_bind_reg_mag_ssp2_st$Country_name[j]){world_mag_ssp2$propchange[i]=sub_bind_reg_mag_ssp2_st$propchange[j];break}
+  }
+}
+world_mag_ssp2$color_group <- 0
+for (i in 1:nrow(world_mag_ssp2)){
+  if(is.na(world_mag_ssp2$propchange[i])==TRUE){world_mag_ssp2$color_group[i]='a1'} #No data
+  if(!is.na(world_mag_ssp2$propchange[i])==TRUE && world_mag_ssp2$propchange[i] < -1){world_mag_ssp2$color_group[i]='a2'} #<-1
+  if(!is.na(world_mag_ssp2$propchange[i])==TRUE && -1 <= world_mag_ssp2$propchange[i] && world_mag_ssp2$propchange[i] <= -0.5){world_mag_ssp2$color_group[i]='a3'} #-1 ~ -0.5
+  if(!is.na(world_mag_ssp2$propchange[i])==TRUE && -0.5 < world_mag_ssp2$propchange[i] && world_mag_ssp2$propchange[i] <= 0){world_mag_ssp2$color_group[i]='a4'} #-0.5 ~ 0
+  if(!is.na(world_mag_ssp2$propchange[i])==TRUE && 0 < world_mag_ssp2$propchange[i] && world_mag_ssp2$propchange[i] <= 0.5){world_mag_ssp2$color_group[i]='a5'} # 0 ~ 0.5
+  if(!is.na(world_mag_ssp2$propchange[i])==TRUE && 0.5 < world_mag_ssp2$propchange[i] && world_mag_ssp2$propchange[i] <= 1){world_mag_ssp2$color_group[i]='a6'} # 0.5 ~ 1
+  if(!is.na(world_mag_ssp2$propchange[i])==TRUE && 1 < world_mag_ssp2$propchange[i]){world_mag_ssp2$color_group[i]='a7'}
+} # >1
+
+
+
+
+#sub_bind_reg_mag_ssp5_st
+for (i in 1:nrow(sub_bind_reg_mag_ssp5_st)){
+  if (sub_bind_reg_mag_ssp5_st$Country_name[i]=="Democratic Republic of the Congo"){sub_bind_reg_mag_ssp5_st$Country_name[i] = "D.R. Congo"}
+  if (sub_bind_reg_mag_ssp5_st$Country_name[i]=="United States"){sub_bind_reg_mag_ssp5_st$Country_name[i] = "USA"}
+  if (sub_bind_reg_mag_ssp5_st$Country_name[i]=="United Kingdom"){sub_bind_reg_mag_ssp5_st$Country_name[i] = "UK"}
+}
+
+world_mag_ssp5$propchange <- NA
+for (i in 1:nrow(world_mag_ssp5)){
+  for (j in 1:nrow(sub_bind_reg_mag_ssp5_st)){
+    if (world_mag_ssp5$region[i]==sub_bind_reg_mag_ssp5_st$Country_name[j]){world_mag_ssp5$propchange[i]=sub_bind_reg_mag_ssp5_st$propchange[j];break}
+  }
+}
+world_mag_ssp5$color_group <- 0
+for (i in 1:nrow(world_mag_ssp5)){
+  if(is.na(world_mag_ssp5$propchange[i])==TRUE){world_mag_ssp5$color_group[i]='a1'} #No data
+  if(!is.na(world_mag_ssp5$propchange[i])==TRUE && world_mag_ssp5$propchange[i] < -1){world_mag_ssp5$color_group[i]='a2'} #<-1
+  if(!is.na(world_mag_ssp5$propchange[i])==TRUE && -1 <= world_mag_ssp5$propchange[i] && world_mag_ssp5$propchange[i] <= -0.5){world_mag_ssp5$color_group[i]='a3'} #-1 ~ -0.5
+  if(!is.na(world_mag_ssp5$propchange[i])==TRUE && -0.5 < world_mag_ssp5$propchange[i] && world_mag_ssp5$propchange[i] <= 0){world_mag_ssp5$color_group[i]='a4'} #-0.5 ~ 0
+  if(!is.na(world_mag_ssp5$propchange[i])==TRUE && 0 < world_mag_ssp5$propchange[i] && world_mag_ssp5$propchange[i] <= 0.5){world_mag_ssp5$color_group[i]='a5'} # 0 ~ 0.5
+  if(!is.na(world_mag_ssp5$propchange[i])==TRUE && 0.5 < world_mag_ssp5$propchange[i] && world_mag_ssp5$propchange[i] <= 1){world_mag_ssp5$color_group[i]='a6'} # 0.5 ~ 1
+  if(!is.na(world_mag_ssp5$propchange[i])==TRUE && 1 < world_mag_ssp5$propchange[i]){world_mag_ssp5$color_group[i]='a7'}
+} # >1
+```
+
+```{r}
+pdf(width = 5, height = 5, file = "fig6e_f_g.pdf")
+
+
+#sub_bind_reg_mag_ssp1_st
+ggplot(world_mag_ssp1, aes(long, lat)) +
+  geom_map(map=world_mag_ssp1, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#70AD47','#C5E0B4','#FED3C2','#FD9780','#F2584B','#611320')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Proportional change of\npotential total economic cost (%)",reverse = TRUE, nrow = 1, byrow = TRUE))
+
+
+#sub_bind_reg_mag_ssp2_st
+ggplot(world_mag_ssp2, aes(long, lat)) +
+  geom_map(map=world_mag_ssp2, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#70AD47','#C5E0B4','#FED3C2','#FD9780','#F2584B','#611320')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Proportional change of\npotential total economic cost (%)",reverse = TRUE, nrow = 1, byrow = TRUE))
+
+
+#sub_bind_reg_mag_ssp5_st
+ggplot(world_mag_ssp5, aes(long, lat)) +
+  geom_map(map=world_mag_ssp5, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#70AD47','#C5E0B4','#FED3C2','#FD9780','#F2584B','#611320')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Proportional change of\npotential total economic cost (%)",reverse = TRUE, nrow = 1, byrow = TRUE))
+
+
+dev.off()
+```
+

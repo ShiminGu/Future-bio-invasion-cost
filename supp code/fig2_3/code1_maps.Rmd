@@ -1,0 +1,1915 @@
+---
+title: "code1_maps"
+author: "Shimin Gu"
+date: "2024-08-07"
+output: html_document
+---
+
+```{r}
+#load packages
+library(sf)
+library(spData)
+library(ggplot2)
+library(ggthemes)
+library(dplyr)
+library(readxl)
+library(tidyverse)
+library(stats)
+library(rstatix)
+library(gridExtra)
+library(grid)
+```
+
+#current
+```{r}
+#load world map 
+world_curr_tot <- map_data('world')%>%filter(region!="Antarctica")
+world_curr_dam <- map_data('world')%>%filter(region!="Antarctica")
+world_curr_mag <- map_data('world')%>%filter(region!="Antarctica")
+
+#load potential economic cost value, and add column of potential economic cost value
+curr_tot <- read.csv("cost_current.csv", sep = ",", header = T)
+curr_dam <- subset(curr_tot, Type_of_cost_merged == "Damage")
+curr_mag <- subset(curr_tot, Type_of_cost_merged == "Management")
+
+#curr_tot
+world_curr_tot$cost <- NA
+for (i in 1:nrow(world_curr_tot)){
+  for (j in 1:nrow(curr_tot)){
+    if (world_curr_tot$region[i]==curr_tot$Country_name[j]){world_curr_tot$cost[i]=curr_tot$pred_cost_mean[j];break}
+  }
+}
+world_curr_tot$color_group <- 0
+for (i in 1:nrow(world_curr_tot)){
+  if(is.na(world_curr_tot$cost[i])==TRUE){world_curr_tot$color_group[i]=0}
+  if(!is.na(world_curr_tot$cost[i])==TRUE && world_curr_tot$cost[i] < 1){world_curr_tot$color_group[i]='1'}
+  if(!is.na(world_curr_tot$cost[i])==TRUE && 1 <= world_curr_tot$cost[i] && world_curr_tot$cost[i] <= 1000){world_curr_tot$color_group[i]='1-1,000'}
+  if(!is.na(world_curr_tot$cost[i])==TRUE && 1000 < world_curr_tot$cost[i] && world_curr_tot$cost[i] <= 10000){world_curr_tot$color_group[i]='1,000-10,000'}
+  if(!is.na(world_curr_tot$cost[i])==TRUE && 10000 < world_curr_tot$cost[i] && world_curr_tot$cost[i] <= 100000){world_curr_tot$color_group[i]='10,000-100,000'}
+  if(!is.na(world_curr_tot$cost[i])==TRUE && 100000 < world_curr_tot$cost[i] && world_curr_tot$cost[i] <= 1000000){world_curr_tot$color_group[i]='100,000-1,000,000'}
+}
+
+#curr_dam
+world_curr_dam$cost <- NA
+for (i in 1:nrow(world_curr_dam)){
+  for (j in 1:nrow(curr_dam)){
+    if (world_curr_dam$region[i]==curr_dam$sub_Country_name[j]){world_curr_dam$cost[i]=curr_dam$sub_pred_cost_mean[j];break}
+  }
+}
+world_curr_dam$color_group <- 0
+for (i in 1:nrow(world_curr_dam)){
+  if(is.na(world_curr_dam$cost[i])==TRUE){world_curr_dam$color_group[i]=0}
+  if(!is.na(world_curr_dam$cost[i])==TRUE && world_curr_dam$cost[i] < 1){world_curr_dam$color_group[i]='1'}
+  if(!is.na(world_curr_dam$cost[i])==TRUE && 1 <= world_curr_dam$cost[i] && world_curr_dam$cost[i] <= 1000){world_curr_dam$color_group[i]='1-1,000'}
+  if(!is.na(world_curr_dam$cost[i])==TRUE && 1000 < world_curr_dam$cost[i] && world_curr_dam$cost[i] <= 10000){world_curr_dam$color_group[i]='1,000-10,000'}
+  if(!is.na(world_curr_dam$cost[i])==TRUE && 10000 < world_curr_dam$cost[i] && world_curr_dam$cost[i] <= 100000){world_curr_dam$color_group[i]='10,000-100,000'}
+  if(!is.na(world_curr_dam$cost[i])==TRUE && 100000 < world_curr_dam$cost[i] && world_curr_dam$cost[i] <= 1000000){world_curr_dam$color_group[i]='100,000-1,000,000'}
+}
+
+#curr_mag
+world_curr_mag$cost <- NA
+for (i in 1:nrow(world_curr_mag)){
+  for (j in 1:nrow(curr_mag)){
+    if (world_curr_mag$region[i]==curr_mag$sub_Country_name[j]){world_curr_mag$cost[i]=curr_mag$sub_pred_cost_mean[j];break}
+  }
+}
+world_curr_mag$color_group <- 0
+for (i in 1:nrow(world_curr_mag)){
+  if(is.na(world_curr_mag$cost[i])==TRUE){world_curr_mag$color_group[i]=0}
+  if(!is.na(world_curr_mag$cost[i])==TRUE && world_curr_mag$cost[i] < 1){world_curr_mag$color_group[i]='1'}
+  if(!is.na(world_curr_mag$cost[i])==TRUE && 1 <= world_curr_mag$cost[i] && world_curr_mag$cost[i] <= 1000){world_curr_mag$color_group[i]='1-1,000'}
+  if(!is.na(world_curr_mag$cost[i])==TRUE && 1000 < world_curr_mag$cost[i] && world_curr_mag$cost[i] <= 10000){world_curr_mag$color_group[i]='1,000-10,000'}
+  if(!is.na(world_curr_mag$cost[i])==TRUE && 10000 < world_curr_mag$cost[i] && world_curr_mag$cost[i] <= 100000){world_curr_mag$color_group[i]='10,000-100,000'}
+  if(!is.na(world_curr_mag$cost[i])==TRUE && 100000 < world_curr_mag$cost[i] && world_curr_mag$cost[i] <= 1000000){world_curr_mag$color_group[i]='100,000-1,000,000'}
+}
+```
+#current plotting
+```{r}
+
+pdf(width = 5, height = 5, file = "fig2d_e_f.pdf")
+
+#curr_tot
+ggplot(world_curr_tot, aes(long, lat)) +
+  geom_map(map=world_curr_tot, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#FDE9DF','#FED3C2','#FD9780','#F2584B','#611320')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#curr_dam
+ggplot(world_curr_dam, aes(long, lat)) +
+  geom_map(map=world_curr_dam, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#E9E7F1','#D5D5E7','#A2A4CE','#7772B2','#2E1E42')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#curr_mag
+ggplot(world_curr_mag, aes(long, lat)) +
+  geom_map(map=world_curr_mag, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#F1F4FF','#CEDFF0','#99C9E3','#6AAED8','#173D5F')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+```
+
+
+
+#ssp1
+```{r}
+#load world map 
+world_ssp1_tot <- map_data('world')%>%filter(region!="Antarctica")
+world_ssp1_dam <- map_data('world')%>%filter(region!="Antarctica")
+world_ssp1_mag <- map_data('world')%>%filter(region!="Antarctica")
+
+#load potential economic cost value, and add column of potential economic cost value
+ssp1_tot <- read.csv("cost_ssp1.csv", sep = ",", header = T)
+ssp1_dam <- subset(ssp1_tot, Type_of_cost_merged == "Damage")
+ssp1_mag <- subset(ssp1_tot, Type_of_cost_merged == "Management")
+
+#ssp1_tot
+world_ssp1_tot$cost <- NA
+for (i in 1:nrow(world_ssp1_tot)){
+  for (j in 1:nrow(ssp1_tot)){
+    if (world_ssp1_tot$region[i]==ssp1_tot$Country_name[j]){world_ssp1_tot$cost[i]=ssp1_tot$pred_cost_mean[j];break}
+  }
+}
+world_ssp1_tot$color_group <- 0
+for (i in 1:nrow(world_ssp1_tot)){
+  if(is.na(world_ssp1_tot$cost[i])==TRUE){world_ssp1_tot$color_group[i]=0}
+  if(!is.na(world_ssp1_tot$cost[i])==TRUE && world_ssp1_tot$cost[i] < 1){world_ssp1_tot$color_group[i]='1'}
+  if(!is.na(world_ssp1_tot$cost[i])==TRUE && 1 <= world_ssp1_tot$cost[i] && world_ssp1_tot$cost[i] <= 1000){world_ssp1_tot$color_group[i]='1-1,000'}
+  if(!is.na(world_ssp1_tot$cost[i])==TRUE && 1000 < world_ssp1_tot$cost[i] && world_ssp1_tot$cost[i] <= 10000){world_ssp1_tot$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp1_tot$cost[i])==TRUE && 10000 < world_ssp1_tot$cost[i] && world_ssp1_tot$cost[i] <= 100000){world_ssp1_tot$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp1_tot$cost[i])==TRUE && 100000 < world_ssp1_tot$cost[i] && world_ssp1_tot$cost[i] <= 1000000){world_ssp1_tot$color_group[i]='100,000-1,000,000'}
+}
+
+#ssp1_dam
+world_ssp1_dam$cost <- NA
+for (i in 1:nrow(world_ssp1_dam)){
+  for (j in 1:nrow(ssp1_dam)){
+    if (world_ssp1_dam$region[i]==ssp1_dam$sub_Country_name[j]){world_ssp1_dam$cost[i]=ssp1_dam$sub_pred_cost_mean[j];break}
+  }
+}
+world_ssp1_dam$color_group <- 0
+for (i in 1:nrow(world_ssp1_dam)){
+  if(is.na(world_ssp1_dam$cost[i])==TRUE){world_ssp1_dam$color_group[i]=0}
+  if(!is.na(world_ssp1_dam$cost[i])==TRUE && world_ssp1_dam$cost[i] < 1){world_ssp1_dam$color_group[i]='1'}
+  if(!is.na(world_ssp1_dam$cost[i])==TRUE && 1 <= world_ssp1_dam$cost[i] && world_ssp1_dam$cost[i] <= 1000){world_ssp1_dam$color_group[i]='1-1,000'}
+  if(!is.na(world_ssp1_dam$cost[i])==TRUE && 1000 < world_ssp1_dam$cost[i] && world_ssp1_dam$cost[i] <= 10000){world_ssp1_dam$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp1_dam$cost[i])==TRUE && 10000 < world_ssp1_dam$cost[i] && world_ssp1_dam$cost[i] <= 100000){world_ssp1_dam$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp1_dam$cost[i])==TRUE && 100000 < world_ssp1_dam$cost[i] && world_ssp1_dam$cost[i] <= 1000000){world_ssp1_dam$color_group[i]='100,000-1,000,000'}
+}
+
+#ssp1_mag
+world_ssp1_mag$cost <- NA
+for (i in 1:nrow(world_ssp1_mag)){
+  for (j in 1:nrow(ssp1_mag)){
+    if (world_ssp1_mag$region[i]==ssp1_mag$sub_Country_name[j]){world_ssp1_mag$cost[i]=ssp1_mag$sub_pred_cost_mean[j];break}
+  }
+}
+world_ssp1_mag$color_group <- 0
+for (i in 1:nrow(world_ssp1_mag)){
+  if(is.na(world_ssp1_mag$cost[i])==TRUE){world_ssp1_mag$color_group[i]=0}
+  if(!is.na(world_ssp1_mag$cost[i])==TRUE && world_ssp1_mag$cost[i] < 1){world_ssp1_mag$color_group[i]='1'}
+  if(!is.na(world_ssp1_mag$cost[i])==TRUE && 1 <= world_ssp1_mag$cost[i] && world_ssp1_mag$cost[i] <= 1000){world_ssp1_mag$color_group[i]='1-1,000'}
+  if(!is.na(world_ssp1_mag$cost[i])==TRUE && 1000 < world_ssp1_mag$cost[i] && world_ssp1_mag$cost[i] <= 10000){world_ssp1_mag$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp1_mag$cost[i])==TRUE && 10000 < world_ssp1_mag$cost[i] && world_ssp1_mag$cost[i] <= 100000){world_ssp1_mag$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp1_mag$cost[i])==TRUE && 100000 < world_ssp1_mag$cost[i] && world_ssp1_mag$cost[i] <= 1000000){world_ssp1_mag$color_group[i]='100,000-1,000,000'}
+}
+```
+#ssp1 plotting
+```{r}
+
+pdf(width = 5, height = 5, file = "fig2g_h_i.pdf")
+
+#ssp1_tot
+ggplot(world_ssp1_tot, aes(long, lat)) +
+  geom_map(map=world_ssp1_tot, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#FDE9DF','#FED3C2','#FD9780','#F2584B','#611320')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#ssp1_dam
+ggplot(world_ssp1_dam, aes(long, lat)) +
+  geom_map(map=world_ssp1_dam, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#E9E7F1','#D5D5E7','#A2A4CE','#7772B2','#2E1E42')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#ssp1_mag
+ggplot(world_ssp1_mag, aes(long, lat)) +
+  geom_map(map=world_ssp1_mag, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#F1F4FF','#CEDFF0','#99C9E3','#6AAED8','#173D5F')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+```
+
+
+
+#ssp2
+```{r}
+#load world map 
+world_ssp2_tot <- map_data('world')%>%filter(region!="Antarctica")
+world_ssp2_dam <- map_data('world')%>%filter(region!="Antarctica")
+world_ssp2_mag <- map_data('world')%>%filter(region!="Antarctica")
+
+#load potential economic cost value, and add column of potential economic cost value
+ssp2_tot <- read.csv("cost_ssp2.csv", sep = ",", header = T)
+ssp2_dam <- subset(ssp2_tot, Type_of_cost_merged == "Damage")
+ssp2_mag <- subset(ssp2_tot, Type_of_cost_merged == "Management")
+
+#ssp2_tot
+world_ssp2_tot$cost <- NA
+for (i in 1:nrow(world_ssp2_tot)){
+  for (j in 1:nrow(ssp2_tot)){
+    if (world_ssp2_tot$region[i]==ssp2_tot$Country_name[j]){world_ssp2_tot$cost[i]=ssp2_tot$pred_cost_mean[j];break}
+  }
+}
+world_ssp2_tot$color_group <- 0
+for (i in 1:nrow(world_ssp2_tot)){
+  if(is.na(world_ssp2_tot$cost[i])==TRUE){world_ssp2_tot$color_group[i]=0}
+  if(!is.na(world_ssp2_tot$cost[i])==TRUE && world_ssp2_tot$cost[i] < 1){world_ssp2_tot$color_group[i]='1'}
+  if(!is.na(world_ssp2_tot$cost[i])==TRUE && 1 <= world_ssp2_tot$cost[i] && world_ssp2_tot$cost[i] <= 1000){world_ssp2_tot$color_group[i]='1-1,000'}
+  if(!is.na(world_ssp2_tot$cost[i])==TRUE && 1000 < world_ssp2_tot$cost[i] && world_ssp2_tot$cost[i] <= 10000){world_ssp2_tot$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp2_tot$cost[i])==TRUE && 10000 < world_ssp2_tot$cost[i] && world_ssp2_tot$cost[i] <= 100000){world_ssp2_tot$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp2_tot$cost[i])==TRUE && 100000 < world_ssp2_tot$cost[i] && world_ssp2_tot$cost[i] <= 1000000){world_ssp2_tot$color_group[i]='100,000-1,000,000'}
+}
+
+#ssp2_dam
+world_ssp2_dam$cost <- NA
+for (i in 1:nrow(world_ssp2_dam)){
+  for (j in 1:nrow(ssp2_dam)){
+    if (world_ssp2_dam$region[i]==ssp2_dam$sub_Country_name[j]){world_ssp2_dam$cost[i]=ssp2_dam$sub_pred_cost_mean[j];break}
+  }
+}
+world_ssp2_dam$color_group <- 0
+for (i in 1:nrow(world_ssp2_dam)){
+  if(is.na(world_ssp2_dam$cost[i])==TRUE){world_ssp2_dam$color_group[i]=0}
+  if(!is.na(world_ssp2_dam$cost[i])==TRUE && world_ssp2_dam$cost[i] < 1){world_ssp2_dam$color_group[i]='1'}
+  if(!is.na(world_ssp2_dam$cost[i])==TRUE && 1 <= world_ssp2_dam$cost[i] && world_ssp2_dam$cost[i] <= 1000){world_ssp2_dam$color_group[i]='1-1,000'}
+  if(!is.na(world_ssp2_dam$cost[i])==TRUE && 1000 < world_ssp2_dam$cost[i] && world_ssp2_dam$cost[i] <= 10000){world_ssp2_dam$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp2_dam$cost[i])==TRUE && 10000 < world_ssp2_dam$cost[i] && world_ssp2_dam$cost[i] <= 100000){world_ssp2_dam$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp2_dam$cost[i])==TRUE && 100000 < world_ssp2_dam$cost[i] && world_ssp2_dam$cost[i] <= 1000000){world_ssp2_dam$color_group[i]='100,000-1,000,000'}
+}
+
+#ssp2_mag
+world_ssp2_mag$cost <- NA
+for (i in 1:nrow(world_ssp2_mag)){
+  for (j in 1:nrow(ssp2_mag)){
+    if (world_ssp2_mag$region[i]==ssp2_mag$sub_Country_name[j]){world_ssp2_mag$cost[i]=ssp2_mag$sub_pred_cost_mean[j];break}
+  }
+}
+world_ssp2_mag$color_group <- 0
+for (i in 1:nrow(world_ssp2_mag)){
+  if(is.na(world_ssp2_mag$cost[i])==TRUE){world_ssp2_mag$color_group[i]=0}
+  if(!is.na(world_ssp2_mag$cost[i])==TRUE && world_ssp2_mag$cost[i] < 1){world_ssp2_mag$color_group[i]='1'}
+  if(!is.na(world_ssp2_mag$cost[i])==TRUE && 1 <= world_ssp2_mag$cost[i] && world_ssp2_mag$cost[i] <= 1000){world_ssp2_mag$color_group[i]='1-1,000'}
+  if(!is.na(world_ssp2_mag$cost[i])==TRUE && 1000 < world_ssp2_mag$cost[i] && world_ssp2_mag$cost[i] <= 10000){world_ssp2_mag$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp2_mag$cost[i])==TRUE && 10000 < world_ssp2_mag$cost[i] && world_ssp2_mag$cost[i] <= 100000){world_ssp2_mag$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp2_mag$cost[i])==TRUE && 100000 < world_ssp2_mag$cost[i] && world_ssp2_mag$cost[i] <= 1000000){world_ssp2_mag$color_group[i]='100,000-1,000,000'}
+}
+```
+#ssp2 plotting
+```{r}
+
+pdf(width = 5, height = 5, file = "fig2j_k_l.pdf")
+
+#ssp2_tot
+ggplot(world_ssp2_tot, aes(long, lat)) +
+  geom_map(map=world_ssp2_tot, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#FDE9DF','#FED3C2','#FD9780','#F2584B','#611320')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#ssp2_dam
+ggplot(world_ssp2_dam, aes(long, lat)) +
+  geom_map(map=world_ssp2_dam, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#E9E7F1','#D5D5E7','#A2A4CE','#7772B2','#2E1E42')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#ssp2_mag
+ggplot(world_ssp2_mag, aes(long, lat)) +
+  geom_map(map=world_ssp2_mag, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#F1F4FF','#CEDFF0','#99C9E3','#6AAED8','#173D5F')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+```
+
+
+
+#ssp5
+```{r}
+#load world map 
+world_ssp5_tot <- map_data('world')%>%filter(region!="Antarctica")
+world_ssp5_dam <- map_data('world')%>%filter(region!="Antarctica")
+world_ssp5_mag <- map_data('world')%>%filter(region!="Antarctica")
+
+#load potential economic cost value, and add column of potential economic cost value
+ssp5_tot <- read.csv("cost_ssp5.csv", sep = ",", header = T)
+ssp5_dam <- subset(ssp5_tot, Type_of_cost_merged == "Damage")
+ssp5_mag <- subset(ssp5_tot, Type_of_cost_merged == "Management")
+
+#ssp5_tot
+world_ssp5_tot$cost <- NA
+for (i in 1:nrow(world_ssp5_tot)){
+  for (j in 1:nrow(ssp5_tot)){
+    if (world_ssp5_tot$region[i]==ssp5_tot$Country_name[j]){world_ssp5_tot$cost[i]=ssp5_tot$pred_cost_mean[j];break}
+  }
+}
+world_ssp5_tot$color_group <- 0
+for (i in 1:nrow(world_ssp5_tot)){
+  if(is.na(world_ssp5_tot$cost[i])==TRUE){world_ssp5_tot$color_group[i]=0}
+  if(!is.na(world_ssp5_tot$cost[i])==TRUE && world_ssp5_tot$cost[i] < 1){world_ssp5_tot$color_group[i]='1'}
+  if(!is.na(world_ssp5_tot$cost[i])==TRUE && 1 <= world_ssp5_tot$cost[i] && world_ssp5_tot$cost[i] <= 1000){world_ssp5_tot$color_group[i]='1-1,000'}
+  if(!is.na(world_ssp5_tot$cost[i])==TRUE && 1000 < world_ssp5_tot$cost[i] && world_ssp5_tot$cost[i] <= 10000){world_ssp5_tot$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp5_tot$cost[i])==TRUE && 10000 < world_ssp5_tot$cost[i] && world_ssp5_tot$cost[i] <= 100000){world_ssp5_tot$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp5_tot$cost[i])==TRUE && 100000 < world_ssp5_tot$cost[i] && world_ssp5_tot$cost[i] <= 1000000){world_ssp5_tot$color_group[i]='100,000-1,000,000'}
+}
+
+#ssp5_dam
+world_ssp5_dam$cost <- NA
+for (i in 1:nrow(world_ssp5_dam)){
+  for (j in 1:nrow(ssp5_dam)){
+    if (world_ssp5_dam$region[i]==ssp5_dam$sub_Country_name[j]){world_ssp5_dam$cost[i]=ssp5_dam$sub_pred_cost_mean[j];break}
+  }
+}
+world_ssp5_dam$color_group <- 0
+for (i in 1:nrow(world_ssp5_dam)){
+  if(is.na(world_ssp5_dam$cost[i])==TRUE){world_ssp5_dam$color_group[i]=0}
+  if(!is.na(world_ssp5_dam$cost[i])==TRUE && world_ssp5_dam$cost[i] < 1){world_ssp5_dam$color_group[i]='1'}
+  if(!is.na(world_ssp5_dam$cost[i])==TRUE && 1 <= world_ssp5_dam$cost[i] && world_ssp5_dam$cost[i] <= 1000){world_ssp5_dam$color_group[i]='1-1,000'}
+  if(!is.na(world_ssp5_dam$cost[i])==TRUE && 1000 < world_ssp5_dam$cost[i] && world_ssp5_dam$cost[i] <= 10000){world_ssp5_dam$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp5_dam$cost[i])==TRUE && 10000 < world_ssp5_dam$cost[i] && world_ssp5_dam$cost[i] <= 100000){world_ssp5_dam$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp5_dam$cost[i])==TRUE && 100000 < world_ssp5_dam$cost[i] && world_ssp5_dam$cost[i] <= 1000000){world_ssp5_dam$color_group[i]='100,000-1,000,000'}
+}
+
+#ssp5_mag
+world_ssp5_mag$cost <- NA
+for (i in 1:nrow(world_ssp5_mag)){
+  for (j in 1:nrow(ssp5_mag)){
+    if (world_ssp5_mag$region[i]==ssp5_mag$sub_Country_name[j]){world_ssp5_mag$cost[i]=ssp5_mag$sub_pred_cost_mean[j];break}
+  }
+}
+world_ssp5_mag$color_group <- 0
+for (i in 1:nrow(world_ssp5_mag)){
+  if(is.na(world_ssp5_mag$cost[i])==TRUE){world_ssp5_mag$color_group[i]=0}
+  if(!is.na(world_ssp5_mag$cost[i])==TRUE && world_ssp5_mag$cost[i] < 1){world_ssp5_mag$color_group[i]='1'}
+  if(!is.na(world_ssp5_mag$cost[i])==TRUE && 1 <= world_ssp5_mag$cost[i] && world_ssp5_mag$cost[i] <= 1000){world_ssp5_mag$color_group[i]='1-1,000'}
+  if(!is.na(world_ssp5_mag$cost[i])==TRUE && 1000 < world_ssp5_mag$cost[i] && world_ssp5_mag$cost[i] <= 10000){world_ssp5_mag$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp5_mag$cost[i])==TRUE && 10000 < world_ssp5_mag$cost[i] && world_ssp5_mag$cost[i] <= 100000){world_ssp5_mag$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp5_mag$cost[i])==TRUE && 100000 < world_ssp5_mag$cost[i] && world_ssp5_mag$cost[i] <= 1000000){world_ssp5_mag$color_group[i]='100,000-1,000,000'}
+}
+```
+#ssp5 plotting
+```{r}
+
+pdf(width = 5, height = 5, file = "fig2m_n_o.pdf")
+
+#ssp5_tot
+ggplot(world_ssp5_tot, aes(long, lat)) +
+  geom_map(map=world_ssp5_tot, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#FDE9DF','#FED3C2','#FD9780','#F2584B','#611320')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#ssp5_dam
+ggplot(world_ssp5_dam, aes(long, lat)) +
+  geom_map(map=world_ssp5_dam, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#E9E7F1','#D5D5E7','#A2A4CE','#7772B2','#2E1E42')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#ssp5_mag
+ggplot(world_ssp5_mag, aes(long, lat)) +
+  geom_map(map=world_ssp5_mag, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#F1F4FF','#CEDFF0','#99C9E3','#6AAED8','#173D5F')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#------------------------------
+#gaps of econonmic cost between ssp1-current, ssp2-current, ssp5-current
+#------------------------------
+#ssp1-current
+```{r}
+#load world map
+world_ssp1cur_tot <- map_data('world')%>%filter(region!="Antarctica")
+world_ssp1cur_dam <- map_data('world')%>%filter(region!="Antarctica")
+world_ssp1cur_mag <- map_data('world')%>%filter(region!="Antarctica")
+
+#define the gaps of current to ssp1
+ssp1_tot <- ssp1_tot %>%
+  arrange(match(ssp1_tot$Country_name, curr_tot$Country_name))
+ssp1cur_tot <- ssp1_tot
+ssp1cur_tot$pred_cost_mean <- ssp1_tot$pred_cost_mean-curr_tot$pred_cost_mean
+ssp1_dam <- ssp1_dam %>%
+  arrange(match(ssp1_dam$sub_Country_name, curr_dam$sub_Country_name))
+ssp1cur_dam <- ssp1_dam
+ssp1cur_dam$sub_pred_cost_mean <- ssp1_dam$sub_pred_cost_mean-curr_dam$sub_pred_cost_mean
+ssp1_mag <- ssp1_mag %>%
+  arrange(match(ssp1_mag$sub_Country_name, curr_mag$sub_Country_name))
+ssp1cur_mag <- ssp1_mag
+ssp1cur_mag$sub_pred_cost_mean <- ssp1_mag$sub_pred_cost_mean-curr_mag$sub_pred_cost_mean
+
+#ssp1cur_tot
+world_ssp1cur_tot$cost <- NA
+for (i in 1:nrow(world_ssp1cur_tot)){
+  for (j in 1:nrow(ssp1cur_tot)){
+    if (world_ssp1cur_tot$region[i]==ssp1cur_tot$Country_name[j]){world_ssp1cur_tot$cost[i]=ssp1cur_tot$pred_cost_mean[j];break}
+  }
+}
+world_ssp1cur_tot$color_group <- 0
+for (i in 1:nrow(world_ssp1cur_tot)){
+  if(is.na(world_ssp1cur_tot$cost[i])==TRUE){world_ssp1cur_tot$color_group[i]='-0.1'}
+  if(!is.na(world_ssp1cur_tot$cost[i])==TRUE && world_ssp1cur_tot$cost[i] < -100){world_ssp1cur_tot$color_group[i]='-100'}
+  if(!is.na(world_ssp1cur_tot$cost[i])==TRUE && -100 <= world_ssp1cur_tot$cost[i] && world_ssp1cur_tot$cost[i] <= 0){world_ssp1cur_tot$color_group[i]='-100-0'}
+  if(!is.na(world_ssp1cur_tot$cost[i])==TRUE && 0 < world_ssp1cur_tot$cost[i] && world_ssp1cur_tot$cost[i] <= 1000){world_ssp1cur_tot$color_group[i]='0-1,000'}
+  if(!is.na(world_ssp1cur_tot$cost[i])==TRUE && 1000 < world_ssp1cur_tot$cost[i] && world_ssp1cur_tot$cost[i] <= 10000){world_ssp1cur_tot$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp1cur_tot$cost[i])==TRUE && 10000 < world_ssp1cur_tot$cost[i] && world_ssp1cur_tot$cost[i] <= 100000){world_ssp1cur_tot$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp1cur_tot$cost[i])==TRUE && 100000 < world_ssp1cur_tot$cost[i] && world_ssp1cur_tot$cost[i]){world_ssp1cur_tot$color_group[i]='100,000-1,000,000'}
+}
+
+#ssp1cur_dam
+world_ssp1cur_dam$cost <- NA
+for (i in 1:nrow(world_ssp1cur_dam)){
+  for (j in 1:nrow(ssp1cur_dam)){
+    if (world_ssp1cur_dam$region[i]==ssp1cur_dam$sub_Country_name[j]){world_ssp1cur_dam$cost[i]=ssp1cur_dam$sub_pred_cost_mean[j];break}
+  }
+}
+world_ssp1cur_dam$color_group <- 0
+for (i in 1:nrow(world_ssp1cur_dam)){
+  if(is.na(world_ssp1cur_dam$cost[i])==TRUE){world_ssp1cur_dam$color_group[i]='-0.1'}
+  if(!is.na(world_ssp1cur_dam$cost[i])==TRUE && world_ssp1cur_dam$cost[i] < -100){world_ssp1cur_dam$color_group[i]='-100'}
+  if(!is.na(world_ssp1cur_dam$cost[i])==TRUE && -100 <= world_ssp1cur_dam$cost[i] && world_ssp1cur_dam$cost[i] <= 0){world_ssp1cur_dam$color_group[i]='-100-0'}
+  if(!is.na(world_ssp1cur_dam$cost[i])==TRUE && 0 < world_ssp1cur_dam$cost[i] && world_ssp1cur_dam$cost[i] <= 1000){world_ssp1cur_dam$color_group[i]='0-1,000'}
+  if(!is.na(world_ssp1cur_dam$cost[i])==TRUE && 1000 < world_ssp1cur_dam$cost[i] && world_ssp1cur_dam$cost[i] <= 10000){world_ssp1cur_dam$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp1cur_dam$cost[i])==TRUE && 10000 < world_ssp1cur_dam$cost[i] && world_ssp1cur_dam$cost[i] <= 100000){world_ssp1cur_dam$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp1cur_dam$cost[i])==TRUE && 100000 < world_ssp1cur_dam$cost[i] && world_ssp1cur_dam$cost[i]){world_ssp1cur_dam$color_group[i]='100,000-1,000,000'}
+}
+
+#ssp1cur_mag
+world_ssp1cur_mag$cost <- NA
+for (i in 1:nrow(world_ssp1cur_mag)){
+  for (j in 1:nrow(ssp1cur_mag)){
+    if (world_ssp1cur_mag$region[i]==ssp1cur_mag$sub_Country_name[j]){world_ssp1cur_mag$cost[i]=ssp1cur_mag$sub_pred_cost_mean[j];break}
+  }
+}
+world_ssp1cur_mag$color_group <- 0
+for (i in 1:nrow(world_ssp1cur_mag)){
+  if(is.na(world_ssp1cur_mag$cost[i])==TRUE){world_ssp1cur_mag$color_group[i]='-0.1'}
+  if(!is.na(world_ssp1cur_mag$cost[i])==TRUE && world_ssp1cur_mag$cost[i] < -100){world_ssp1cur_mag$color_group[i]='-100'}
+  if(!is.na(world_ssp1cur_mag$cost[i])==TRUE && -100 <= world_ssp1cur_mag$cost[i] && world_ssp1cur_mag$cost[i] <= 0){world_ssp1cur_mag$color_group[i]='-100-0'}
+  if(!is.na(world_ssp1cur_mag$cost[i])==TRUE && 0 < world_ssp1cur_mag$cost[i] && world_ssp1cur_mag$cost[i] <= 1000){world_ssp1cur_mag$color_group[i]='0-1,000'}
+  if(!is.na(world_ssp1cur_mag$cost[i])==TRUE && 1000 < world_ssp1cur_mag$cost[i] && world_ssp1cur_mag$cost[i] <= 10000){world_ssp1cur_mag$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp1cur_mag$cost[i])==TRUE && 10000 < world_ssp1cur_mag$cost[i] && world_ssp1cur_mag$cost[i] <= 100000){world_ssp1cur_mag$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp1cur_mag$cost[i])==TRUE && 100000 < world_ssp1cur_mag$cost[i] && world_ssp1cur_mag$cost[i]){world_ssp1cur_mag$color_group[i]='100,000-1,000,000'}
+}
+
+```
+#ssp1-current plotting
+```{r}
+
+pdf(width = 5, height = 5, file = "fig3d_e_f.pdf")
+
+#ssp1cur_tot
+ggplot(world_ssp1cur_tot, aes(long, lat)) +
+  geom_map(map=world_ssp1cur_tot, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#70AD47','#C5E0B4','#FED3C2','#FD9780','#F2584B','#611320')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#ssp1cur_dam
+ggplot(world_ssp1cur_dam, aes(long, lat)) +
+  geom_map(map=world_ssp1cur_dam, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#70AD47','#C5E0B4','#D5D5E7','#A2A4CE','#7772B2','#2E1E42')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#ssp1cur_mag
+ggplot(world_ssp1cur_mag, aes(long, lat)) +
+  geom_map(map=world_ssp1cur_mag, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#70AD47','#C5E0B4','#CEDFF0','#99C9E3','#6AAED8','#173D5F')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+```
+
+
+
+#ssp2-current
+```{r}
+#load world map
+world_ssp2cur_tot <- map_data('world')%>%filter(region!="Antarctica")
+world_ssp2cur_dam <- map_data('world')%>%filter(region!="Antarctica")
+world_ssp2cur_mag <- map_data('world')%>%filter(region!="Antarctica")
+
+#define the gaps of current to ssp2
+ssp2_tot <- ssp2_tot %>%
+  arrange(match(ssp2_tot$Country_name, curr_tot$Country_name))
+ssp2cur_tot <- ssp2_tot
+ssp2cur_tot$pred_cost_mean <- ssp2_tot$pred_cost_mean-curr_tot$pred_cost_mean
+ssp2_dam <- ssp2_dam %>%
+  arrange(match(ssp2_dam$sub_Country_name, curr_dam$sub_Country_name))
+ssp2cur_dam <- ssp2_dam
+ssp2cur_dam$sub_pred_cost_mean <- ssp2_dam$sub_pred_cost_mean-curr_dam$sub_pred_cost_mean
+ssp2_mag <- ssp2_mag %>%
+  arrange(match(ssp2_mag$sub_Country_name, curr_mag$sub_Country_name))
+ssp2cur_mag <- ssp2_mag
+ssp2cur_mag$sub_pred_cost_mean <- ssp2_mag$sub_pred_cost_mean-curr_mag$sub_pred_cost_mean
+
+#ssp2cur_tot
+world_ssp2cur_tot$cost <- NA
+for (i in 1:nrow(world_ssp2cur_tot)){
+  for (j in 1:nrow(ssp2cur_tot)){
+    if (world_ssp2cur_tot$region[i]==ssp2cur_tot$Country_name[j]){world_ssp2cur_tot$cost[i]=ssp2cur_tot$pred_cost_mean[j];break}
+  }
+}
+world_ssp2cur_tot$color_group <- 0
+for (i in 1:nrow(world_ssp2cur_tot)){
+  if(is.na(world_ssp2cur_tot$cost[i])==TRUE){world_ssp2cur_tot$color_group[i]='-0.1'}
+  if(!is.na(world_ssp2cur_tot$cost[i])==TRUE && world_ssp2cur_tot$cost[i] < -100){world_ssp2cur_tot$color_group[i]='-100'}
+  if(!is.na(world_ssp2cur_tot$cost[i])==TRUE && -100 <= world_ssp2cur_tot$cost[i] && world_ssp2cur_tot$cost[i] <= 0){world_ssp2cur_tot$color_group[i]='-100-0'}
+  if(!is.na(world_ssp2cur_tot$cost[i])==TRUE && 0 < world_ssp2cur_tot$cost[i] && world_ssp2cur_tot$cost[i] <= 1000){world_ssp2cur_tot$color_group[i]='0-1,000'}
+  if(!is.na(world_ssp2cur_tot$cost[i])==TRUE && 1000 < world_ssp2cur_tot$cost[i] && world_ssp2cur_tot$cost[i] <= 10000){world_ssp2cur_tot$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp2cur_tot$cost[i])==TRUE && 10000 < world_ssp2cur_tot$cost[i] && world_ssp2cur_tot$cost[i] <= 100000){world_ssp2cur_tot$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp2cur_tot$cost[i])==TRUE && 100000 < world_ssp2cur_tot$cost[i] && world_ssp2cur_tot$cost[i]){world_ssp2cur_tot$color_group[i]='100,000-1,000,000'}
+}
+
+#ssp2cur_dam
+world_ssp2cur_dam$cost <- NA
+for (i in 1:nrow(world_ssp2cur_dam)){
+  for (j in 1:nrow(ssp2cur_dam)){
+    if (world_ssp2cur_dam$region[i]==ssp2cur_dam$sub_Country_name[j]){world_ssp2cur_dam$cost[i]=ssp2cur_dam$sub_pred_cost_mean[j];break}
+  }
+}
+world_ssp2cur_dam$color_group <- 0
+for (i in 1:nrow(world_ssp2cur_dam)){
+  if(is.na(world_ssp2cur_dam$cost[i])==TRUE){world_ssp2cur_dam$color_group[i]='-0.1'}
+  if(!is.na(world_ssp2cur_dam$cost[i])==TRUE && world_ssp2cur_dam$cost[i] < -100){world_ssp2cur_dam$color_group[i]='-100'}
+  if(!is.na(world_ssp2cur_dam$cost[i])==TRUE && -100 <= world_ssp2cur_dam$cost[i] && world_ssp2cur_dam$cost[i] <= 0){world_ssp2cur_dam$color_group[i]='-100-0'}
+  if(!is.na(world_ssp2cur_dam$cost[i])==TRUE && 0 < world_ssp2cur_dam$cost[i] && world_ssp2cur_dam$cost[i] <= 1000){world_ssp2cur_dam$color_group[i]='0-1,000'}
+  if(!is.na(world_ssp2cur_dam$cost[i])==TRUE && 1000 < world_ssp2cur_dam$cost[i] && world_ssp2cur_dam$cost[i] <= 10000){world_ssp2cur_dam$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp2cur_dam$cost[i])==TRUE && 10000 < world_ssp2cur_dam$cost[i] && world_ssp2cur_dam$cost[i] <= 100000){world_ssp2cur_dam$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp2cur_dam$cost[i])==TRUE && 100000 < world_ssp2cur_dam$cost[i] && world_ssp2cur_dam$cost[i]){world_ssp2cur_dam$color_group[i]='100,000-1,000,000'}
+}
+
+#ssp2cur_mag
+world_ssp2cur_mag$cost <- NA
+for (i in 1:nrow(world_ssp2cur_mag)){
+  for (j in 1:nrow(ssp2cur_mag)){
+    if (world_ssp2cur_mag$region[i]==ssp2cur_mag$sub_Country_name[j]){world_ssp2cur_mag$cost[i]=ssp2cur_mag$sub_pred_cost_mean[j];break}
+  }
+}
+world_ssp2cur_mag$color_group <- 0
+for (i in 1:nrow(world_ssp2cur_mag)){
+  if(is.na(world_ssp2cur_mag$cost[i])==TRUE){world_ssp2cur_mag$color_group[i]='-0.1'}
+  if(!is.na(world_ssp2cur_mag$cost[i])==TRUE && world_ssp2cur_mag$cost[i] < -100){world_ssp2cur_mag$color_group[i]='-100'}
+  if(!is.na(world_ssp2cur_mag$cost[i])==TRUE && -100 <= world_ssp2cur_mag$cost[i] && world_ssp2cur_mag$cost[i] <= 0){world_ssp2cur_mag$color_group[i]='-100-0'}
+  if(!is.na(world_ssp2cur_mag$cost[i])==TRUE && 0 < world_ssp2cur_mag$cost[i] && world_ssp2cur_mag$cost[i] <= 1000){world_ssp2cur_mag$color_group[i]='0-1,000'}
+  if(!is.na(world_ssp2cur_mag$cost[i])==TRUE && 1000 < world_ssp2cur_mag$cost[i] && world_ssp2cur_mag$cost[i] <= 10000){world_ssp2cur_mag$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp2cur_mag$cost[i])==TRUE && 10000 < world_ssp2cur_mag$cost[i] && world_ssp2cur_mag$cost[i] <= 100000){world_ssp2cur_mag$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp2cur_mag$cost[i])==TRUE && 100000 < world_ssp2cur_mag$cost[i] && world_ssp2cur_mag$cost[i]){world_ssp2cur_mag$color_group[i]='100,000-1,000,000'}
+}
+
+```
+#ssp2-current plotting
+```{r}
+
+pdf(width = 5, height = 5, file = "fig3g_h_i.pdf")
+
+#ssp2cur_tot
+ggplot(world_ssp2cur_tot, aes(long, lat)) +
+  geom_map(map=world_ssp2cur_tot, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#70AD47','#C5E0B4','#FED3C2','#FD9780','#F2584B','#611320')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#ssp2cur_dam
+ggplot(world_ssp2cur_dam, aes(long, lat)) +
+  geom_map(map=world_ssp2cur_dam, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#70AD47','#C5E0B4','#D5D5E7','#A2A4CE','#7772B2','#2E1E42')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#ssp2cur_mag
+ggplot(world_ssp2cur_mag, aes(long, lat)) +
+  geom_map(map=world_ssp2cur_mag, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#70AD47','#C5E0B4','#CEDFF0','#99C9E3','#6AAED8','#173D5F')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+```
+
+
+
+#ssp5-current
+```{r}
+#load world map
+world_ssp5cur_tot <- map_data('world')%>%filter(region!="Antarctica")
+world_ssp5cur_dam <- map_data('world')%>%filter(region!="Antarctica")
+world_ssp5cur_mag <- map_data('world')%>%filter(region!="Antarctica")
+
+#define the gaps of current to ssp5
+ssp5_tot <- ssp5_tot %>%
+  arrange(match(ssp5_tot$Country_name, curr_tot$Country_name))
+ssp5cur_tot <- ssp5_tot
+ssp5cur_tot$pred_cost_mean <- ssp5_tot$pred_cost_mean-curr_tot$pred_cost_mean
+ssp5_dam <- ssp5_dam %>%
+  arrange(match(ssp5_dam$sub_Country_name, curr_dam$sub_Country_name))
+ssp5cur_dam <- ssp5_dam
+ssp5cur_dam$sub_pred_cost_mean <- ssp5_dam$sub_pred_cost_mean-curr_dam$sub_pred_cost_mean
+ssp5_mag <- ssp5_mag %>%
+  arrange(match(ssp5_mag$sub_Country_name, curr_mag$sub_Country_name))
+ssp5cur_mag <- ssp5_mag
+ssp5cur_mag$sub_pred_cost_mean <- ssp5_mag$sub_pred_cost_mean-curr_mag$sub_pred_cost_mean
+
+#ssp5cur_tot
+world_ssp5cur_tot$cost <- NA
+for (i in 1:nrow(world_ssp5cur_tot)){
+  for (j in 1:nrow(ssp5cur_tot)){
+    if (world_ssp5cur_tot$region[i]==ssp5cur_tot$Country_name[j]){world_ssp5cur_tot$cost[i]=ssp5cur_tot$pred_cost_mean[j];break}
+  }
+}
+world_ssp5cur_tot$color_group <- 0
+for (i in 1:nrow(world_ssp5cur_tot)){
+  if(is.na(world_ssp5cur_tot$cost[i])==TRUE){world_ssp5cur_tot$color_group[i]='-0.1'}
+  if(!is.na(world_ssp5cur_tot$cost[i])==TRUE && world_ssp5cur_tot$cost[i] < -100){world_ssp5cur_tot$color_group[i]='-100'}
+  if(!is.na(world_ssp5cur_tot$cost[i])==TRUE && -100 <= world_ssp5cur_tot$cost[i] && world_ssp5cur_tot$cost[i] <= 0){world_ssp5cur_tot$color_group[i]='-100-0'}
+  if(!is.na(world_ssp5cur_tot$cost[i])==TRUE && 0 < world_ssp5cur_tot$cost[i] && world_ssp5cur_tot$cost[i] <= 1000){world_ssp5cur_tot$color_group[i]='0-1,000'}
+  if(!is.na(world_ssp5cur_tot$cost[i])==TRUE && 1000 < world_ssp5cur_tot$cost[i] && world_ssp5cur_tot$cost[i] <= 10000){world_ssp5cur_tot$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp5cur_tot$cost[i])==TRUE && 10000 < world_ssp5cur_tot$cost[i] && world_ssp5cur_tot$cost[i] <= 100000){world_ssp5cur_tot$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp5cur_tot$cost[i])==TRUE && 100000 < world_ssp5cur_tot$cost[i] && world_ssp5cur_tot$cost[i]){world_ssp5cur_tot$color_group[i]='100,000-1,000,000'}
+}
+
+#ssp5cur_dam
+world_ssp5cur_dam$cost <- NA
+for (i in 1:nrow(world_ssp5cur_dam)){
+  for (j in 1:nrow(ssp5cur_dam)){
+    if (world_ssp5cur_dam$region[i]==ssp5cur_dam$sub_Country_name[j]){world_ssp5cur_dam$cost[i]=ssp5cur_dam$sub_pred_cost_mean[j];break}
+  }
+}
+world_ssp5cur_dam$color_group <- 0
+for (i in 1:nrow(world_ssp5cur_dam)){
+  if(is.na(world_ssp5cur_dam$cost[i])==TRUE){world_ssp5cur_dam$color_group[i]='-0.1'}
+  if(!is.na(world_ssp5cur_dam$cost[i])==TRUE && world_ssp5cur_dam$cost[i] < -100){world_ssp5cur_dam$color_group[i]='-100'}
+  if(!is.na(world_ssp5cur_dam$cost[i])==TRUE && -100 <= world_ssp5cur_dam$cost[i] && world_ssp5cur_dam$cost[i] <= 0){world_ssp5cur_dam$color_group[i]='-100-0'}
+  if(!is.na(world_ssp5cur_dam$cost[i])==TRUE && 0 < world_ssp5cur_dam$cost[i] && world_ssp5cur_dam$cost[i] <= 1000){world_ssp5cur_dam$color_group[i]='0-1,000'}
+  if(!is.na(world_ssp5cur_dam$cost[i])==TRUE && 1000 < world_ssp5cur_dam$cost[i] && world_ssp5cur_dam$cost[i] <= 10000){world_ssp5cur_dam$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp5cur_dam$cost[i])==TRUE && 10000 < world_ssp5cur_dam$cost[i] && world_ssp5cur_dam$cost[i] <= 100000){world_ssp5cur_dam$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp5cur_dam$cost[i])==TRUE && 100000 < world_ssp5cur_dam$cost[i] && world_ssp5cur_dam$cost[i]){world_ssp5cur_dam$color_group[i]='100,000-1,000,000'}
+}
+
+#ssp5cur_mag
+world_ssp5cur_mag$cost <- NA
+for (i in 1:nrow(world_ssp5cur_mag)){
+  for (j in 1:nrow(ssp5cur_mag)){
+    if (world_ssp5cur_mag$region[i]==ssp5cur_mag$sub_Country_name[j]){world_ssp5cur_mag$cost[i]=ssp5cur_mag$sub_pred_cost_mean[j];break}
+  }
+}
+world_ssp5cur_mag$color_group <- 0
+for (i in 1:nrow(world_ssp5cur_mag)){
+  if(is.na(world_ssp5cur_mag$cost[i])==TRUE){world_ssp5cur_mag$color_group[i]='-0.1'}
+  if(!is.na(world_ssp5cur_mag$cost[i])==TRUE && world_ssp5cur_mag$cost[i] < -100){world_ssp5cur_mag$color_group[i]='-100'}
+  if(!is.na(world_ssp5cur_mag$cost[i])==TRUE && -100 <= world_ssp5cur_mag$cost[i] && world_ssp5cur_mag$cost[i] <= 0){world_ssp5cur_mag$color_group[i]='-100-0'}
+  if(!is.na(world_ssp5cur_mag$cost[i])==TRUE && 0 < world_ssp5cur_mag$cost[i] && world_ssp5cur_mag$cost[i] <= 1000){world_ssp5cur_mag$color_group[i]='0-1,000'}
+  if(!is.na(world_ssp5cur_mag$cost[i])==TRUE && 1000 < world_ssp5cur_mag$cost[i] && world_ssp5cur_mag$cost[i] <= 10000){world_ssp5cur_mag$color_group[i]='1,000-10,000'}
+  if(!is.na(world_ssp5cur_mag$cost[i])==TRUE && 10000 < world_ssp5cur_mag$cost[i] && world_ssp5cur_mag$cost[i] <= 100000){world_ssp5cur_mag$color_group[i]='10,000-100,000'}
+  if(!is.na(world_ssp5cur_mag$cost[i])==TRUE && 100000 < world_ssp5cur_mag$cost[i] && world_ssp5cur_mag$cost[i]){world_ssp5cur_mag$color_group[i]='100,000-1,000,000'}
+}
+
+```
+#ssp5-current plotting
+```{r}
+
+pdf(width = 5, height = 5, file = "fig3j_k_l.pdf")
+
+#ssp5cur_tot
+ggplot(world_ssp5cur_tot, aes(long, lat)) +
+  geom_map(map=world_ssp5cur_tot, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#70AD47','#C5E0B4','#FED3C2','#FD9780','#F2584B','#611320')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#ssp5cur_dam
+ggplot(world_ssp5cur_dam, aes(long, lat)) +
+  geom_map(map=world_ssp5cur_dam, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#70AD47','#C5E0B4','#D5D5E7','#A2A4CE','#7772B2','#2E1E42')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+
+#ssp5cur_mag
+ggplot(world_ssp5cur_mag, aes(long, lat)) +
+  geom_map(map=world_ssp5cur_mag, aes(map_id=region, fill = as.factor(color_group)), color="white", linewidth = 0.02) +
+  scale_fill_manual(values = c('#C9C9C9','#70AD47','#C5E0B4','#CEDFF0','#99C9E3','#6AAED8','#173D5F')) +
+  coord_quickmap() +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(),
+      panel.background = element_rect(fill = NA),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.border = element_blank()) + theme_map() +  theme(legend.position = "bottom") + 
+  guides(fill = guide_legend(title = "Potential economic cost\n(millions of US$)", reverse = TRUE, nrow = 2, byrow = TRUE))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#current paired test
+```{r}
+
+#country-level samples
+#_tot_
+curr_tot_sub <- curr_tot[,1:2];curr_tot_sub$group <- "current";curr_tot_sub <- na.omit(curr_tot_sub)
+ssp1_tot_sub <- ssp1_tot[,1:2];ssp1_tot_sub$group <- "ssp1";ssp1_tot_sub <- na.omit(ssp1_tot_sub)
+ssp2_tot_sub <- ssp2_tot[,1:2];ssp2_tot_sub$group <- "ssp2";ssp2_tot_sub <- na.omit(ssp2_tot_sub)
+ssp5_tot_sub <- ssp5_tot[,1:2];ssp5_tot_sub$group <- "ssp5";ssp5_tot_sub <- na.omit(ssp5_tot_sub)
+#normality test
+shapiro_test <- shapiro.test(curr_tot_sub$pred_cost_mean)
+curr_tot_sub$log_pred_cost_mean <- log10(curr_tot_sub$pred_cost_mean + 1)
+shapiro_test <- shapiro.test(curr_tot_sub$log_pred_cost_mean)
+shapiro_test
+
+shapiro_test <- shapiro.test(ssp1_tot_sub$pred_cost_mean)
+ssp1_tot_sub$log_pred_cost_mean <- log10(ssp1_tot_sub$pred_cost_mean + 1)
+shapiro_test <- shapiro.test(ssp1_tot_sub$log_pred_cost_mean)
+
+shapiro_test <- shapiro.test(ssp2_tot_sub$pred_cost_mean)
+ssp2_tot_sub$log_pred_cost_mean <- log10(ssp2_tot_sub$pred_cost_mean + 1)
+shapiro_test <- shapiro.test(ssp2_tot_sub$log_pred_cost_mean)
+
+shapiro_test <- shapiro.test(ssp5_tot_sub$pred_cost_mean)
+ssp5_tot_sub$log_pred_cost_mean <- log10(ssp5_tot_sub$pred_cost_mean + 1)
+shapiro_test <- shapiro.test(ssp5_tot_sub$log_pred_cost_mean)
+
+
+
+#_dam_
+curr_dam_sub <- curr_dam[,4:5];curr_dam_sub$group <- "current";curr_dam_sub <- na.omit(curr_dam_sub)
+ssp1_dam_sub <- ssp1_dam[,4:5];ssp1_dam_sub$group <- "ssp1";ssp1_dam_sub <- na.omit(ssp1_dam_sub)
+ssp2_dam_sub <- ssp2_dam[,4:5];ssp2_dam_sub$group <- "ssp2";ssp2_dam_sub <- na.omit(ssp2_dam_sub)
+ssp5_dam_sub <- ssp5_dam[,4:5];ssp5_dam_sub$group <- "ssp5";ssp5_dam_sub <- na.omit(ssp5_dam_sub)
+#normality test
+shapiro_test <- shapiro.test(curr_dam_sub$sub_pred_cost_mean)
+curr_dam_sub$log_sub_pred_cost_mean <- log10(curr_dam_sub$sub_pred_cost_mean + 1)
+shapiro_test <- shapiro.test(curr_dam_sub$log_sub_pred_cost_mean)
+shapiro_test
+
+shapiro_test <- shapiro.test(ssp1_dam_sub$sub_pred_cost_mean)
+ssp1_dam_sub$log_sub_pred_cost_mean <- log10(ssp1_dam_sub$sub_pred_cost_mean + 1)
+shapiro_test <- shapiro.test(ssp1_dam_sub$log_sub_pred_cost_mean)
+
+shapiro_test <- shapiro.test(ssp2_dam_sub$sub_pred_cost_mean)
+ssp2_dam_sub$log_sub_pred_cost_mean <- log10(ssp2_dam_sub$sub_pred_cost_mean + 1)
+shapiro_test <- shapiro.test(ssp2_dam_sub$log_sub_pred_cost_mean)
+
+shapiro_test <- shapiro.test(ssp5_dam_sub$sub_pred_cost_mean)
+ssp5_dam_sub$log_sub_pred_cost_mean <- log10(ssp5_dam_sub$sub_pred_cost_mean + 1)
+shapiro_test <- shapiro.test(ssp5_dam_sub$log_sub_pred_cost_mean)
+
+
+
+#_mag_
+curr_mag_sub <- curr_mag[,4:5];curr_mag_sub$group <- "current";curr_mag_sub <- na.omit(curr_mag_sub)
+ssp1_mag_sub <- ssp1_mag[,4:5];ssp1_mag_sub$group <- "ssp1";ssp1_mag_sub <- na.omit(ssp1_mag_sub)
+ssp2_mag_sub <- ssp2_mag[,4:5];ssp2_mag_sub$group <- "ssp2";ssp2_mag_sub <- na.omit(ssp2_mag_sub)
+ssp5_mag_sub <- ssp5_mag[,4:5];ssp5_mag_sub$group <- "ssp5";ssp5_mag_sub <- na.omit(ssp5_mag_sub)
+#normality test
+shapiro_test <- shapiro.test(curr_mag_sub$sub_pred_cost_mean)
+curr_mag_sub$log_sub_pred_cost_mean <- log10(curr_mag_sub$sub_pred_cost_mean + 1)
+shapiro_test <- shapiro.test(curr_mag_sub$log_sub_pred_cost_mean)
+shapiro_test
+
+shapiro_test <- shapiro.test(ssp1_mag_sub$sub_pred_cost_mean)
+ssp1_mag_sub$log_sub_pred_cost_mean <- log10(ssp1_mag_sub$sub_pred_cost_mean + 1)
+shapiro_test <- shapiro.test(ssp1_mag_sub$log_sub_pred_cost_mean)
+
+shapiro_test <- shapiro.test(ssp2_mag_sub$sub_pred_cost_mean)
+ssp2_mag_sub$log_sub_pred_cost_mean <- log10(ssp2_mag_sub$sub_pred_cost_mean + 1)
+shapiro_test <- shapiro.test(ssp2_mag_sub$log_sub_pred_cost_mean)
+
+shapiro_test <- shapiro.test(ssp5_mag_sub$sub_pred_cost_mean)
+ssp5_mag_sub$log_sub_pred_cost_mean <- log10(ssp5_mag_sub$sub_pred_cost_mean + 1)
+shapiro_test <- shapiro.test(ssp5_mag_sub$log_sub_pred_cost_mean)
+
+```
+#And found without normality, using non-parameteric paired test
+#_tot_
+```{r}
+#_curr_ssp1_tot_
+ssp1_tot_sub <- ssp1_tot_sub %>%
+  arrange(match(ssp1_tot_sub$Country_name, curr_tot_sub$Country_name))
+bind_curr_ssp1_tot_sub <- rbind(curr_tot_sub,ssp1_tot_sub)
+bind_curr_ssp1_tot_sub %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+```
+
+```{r}
+#_curr_ssp2_tot_
+ssp2_tot_sub <- ssp2_tot_sub %>%
+  arrange(match(ssp2_tot_sub$Country_name, curr_tot_sub$Country_name))
+bind_curr_ssp2_tot_sub <- rbind(curr_tot_sub,ssp2_tot_sub)
+bind_curr_ssp2_tot_sub %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+```
+
+```{r}
+#_curr_ssp5_tot_
+ssp5_tot_sub <- ssp5_tot_sub %>%
+  arrange(match(ssp5_tot_sub$Country_name, curr_tot_sub$Country_name))
+bind_curr_ssp5_tot_sub <- rbind(curr_tot_sub,ssp5_tot_sub)
+bind_curr_ssp5_tot_sub %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+```
+
+#_dam_
+```{r}
+#_curr_ssp1_dam_
+ssp1_dam_sub <- ssp1_dam_sub %>%
+  arrange(match(ssp1_dam_sub$sub_Country_name, curr_dam_sub$sub_Country_name))
+bind_curr_ssp1_dam_sub <- rbind(curr_dam_sub,ssp1_dam_sub)
+bind_curr_ssp1_dam_sub %>%
+  wilcox_test(sub_pred_cost_mean ~ group, paired = TRUE)
+```
+
+```{r}
+#_curr_ssp2_dam_
+ssp2_dam_sub <- ssp2_dam_sub %>%
+  arrange(match(ssp2_dam_sub$sub_Country_name, curr_dam_sub$sub_Country_name))
+bind_curr_ssp2_dam_sub <- rbind(curr_dam_sub,ssp2_dam_sub)
+bind_curr_ssp2_dam_sub %>%
+  wilcox_test(sub_pred_cost_mean ~ group, paired = TRUE)
+```
+
+```{r}
+#_curr_ssp5_dam_
+ssp5_dam_sub <- ssp5_dam_sub %>%
+  arrange(match(ssp5_dam_sub$sub_Country_name, curr_dam_sub$sub_Country_name))
+bind_curr_ssp5_dam_sub <- rbind(curr_dam_sub,ssp5_dam_sub)
+bind_curr_ssp5_dam_sub %>%
+  wilcox_test(sub_pred_cost_mean ~ group, paired = TRUE)
+```
+
+#_mag_
+```{r}
+#_curr_ssp1_mag_
+ssp1_mag_sub <- ssp1_mag_sub %>%
+  arrange(match(ssp1_mag_sub$sub_Country_name, curr_mag_sub$sub_Country_name))
+bind_curr_ssp1_mag_sub <- rbind(curr_mag_sub,ssp1_mag_sub)
+bind_curr_ssp1_mag_sub %>%
+  wilcox_test(sub_pred_cost_mean ~ group, paired = TRUE)
+```
+
+```{r}
+#_curr_ssp2_mag_
+ssp2_mag_sub <- ssp2_mag_sub %>%
+  arrange(match(ssp2_mag_sub$sub_Country_name, curr_mag_sub$sub_Country_name))
+bind_curr_ssp2_mag_sub <- rbind(curr_mag_sub,ssp2_mag_sub)
+bind_curr_ssp2_mag_sub %>%
+  wilcox_test(sub_pred_cost_mean ~ group, paired = TRUE)
+```
+
+```{r}
+#_curr_ssp5_mag_
+ssp5_mag_sub <- ssp5_mag_sub %>%
+  arrange(match(ssp5_mag_sub$sub_Country_name, curr_mag_sub$sub_Country_name))
+bind_curr_ssp5_mag_sub <- rbind(curr_mag_sub,ssp5_mag_sub)
+bind_curr_ssp5_mag_sub %>%
+  wilcox_test(sub_pred_cost_mean ~ group, paired = TRUE)
+```
+
+
+
+
+# plotting data preparing
+#_tot_
+```{r}
+curr_tot_sub <- curr_tot[,1:2];curr_tot_sub$group <- "current";curr_tot_sub <- na.omit(curr_tot_sub)
+ssp1_tot_sub <- ssp1_tot[,1:2];ssp1_tot_sub$group <- "ssp1";ssp1_tot_sub <- na.omit(ssp1_tot_sub)
+ssp2_tot_sub <- ssp2_tot[,1:2];ssp2_tot_sub$group <- "ssp2";ssp2_tot_sub <- na.omit(ssp2_tot_sub)
+ssp5_tot_sub <- ssp5_tot[,1:2];ssp5_tot_sub$group <- "ssp5";ssp5_tot_sub <- na.omit(ssp5_tot_sub)
+
+#_ssp1_tot_
+ssp1_tot_sub <- ssp1_tot_sub %>%
+  arrange(match(ssp1_tot_sub$Country_name, curr_tot_sub$Country_name))
+curr_tot_sub$direct <- 0
+curr_tot_sub$ssp1_pred <- ssp1_tot_sub$pred_cost_mean
+curr_tot_sub$change <- curr_tot_sub$ssp1_pred-curr_tot_sub$pred_cost_mean
+for (i in 1:67){
+  if(curr_tot_sub$change[i]>0){curr_tot_sub$direct[i] = "increase"}
+  if(curr_tot_sub$change[i]<0){curr_tot_sub$direct[i] = "decrease"}
+  if(curr_tot_sub$change[i]==0){curr_tot_sub$direct[i] = "no change"}
+}
+curr_tot_sub <- curr_tot_sub[,1:4]
+ssp1_tot_sub$direct <- curr_tot_sub$direct
+bind_ssp1_tot_sub <- rbind(curr_tot_sub,ssp1_tot_sub)
+
+#_tot_
+curr_tot_sub <- curr_tot[,1:2];curr_tot_sub$group <- "current";curr_tot_sub <- na.omit(curr_tot_sub)
+ssp1_tot_sub <- ssp1_tot[,1:2];ssp1_tot_sub$group <- "ssp1";ssp1_tot_sub <- na.omit(ssp1_tot_sub)
+ssp2_tot_sub <- ssp2_tot[,1:2];ssp2_tot_sub$group <- "ssp2";ssp2_tot_sub <- na.omit(ssp2_tot_sub)
+ssp5_tot_sub <- ssp5_tot[,1:2];ssp5_tot_sub$group <- "ssp5";ssp5_tot_sub <- na.omit(ssp5_tot_sub)
+
+#_ssp2_tot_
+ssp2_tot_sub <- ssp2_tot_sub %>%
+  arrange(match(ssp2_tot_sub$Country_name, curr_tot_sub$Country_name))
+curr_tot_sub$direct <- 0
+curr_tot_sub$ssp2_pred <- ssp2_tot_sub$pred_cost_mean
+curr_tot_sub$change <- curr_tot_sub$ssp2_pred-curr_tot_sub$pred_cost_mean
+for (i in 1:67){
+  if(curr_tot_sub$change[i]>0){curr_tot_sub$direct[i] = "increase"}
+  if(curr_tot_sub$change[i]<0){curr_tot_sub$direct[i] = "decrease"}
+  if(curr_tot_sub$change[i]==0){curr_tot_sub$direct[i] = "no change"}
+}
+curr_tot_sub <- curr_tot_sub[,1:4]
+ssp2_tot_sub$direct <- curr_tot_sub$direct
+bind_ssp2_tot_sub <- rbind(curr_tot_sub,ssp2_tot_sub)
+
+#_tot_
+curr_tot_sub <- curr_tot[,1:2];curr_tot_sub$group <- "current";curr_tot_sub <- na.omit(curr_tot_sub)
+ssp1_tot_sub <- ssp1_tot[,1:2];ssp1_tot_sub$group <- "ssp1";ssp1_tot_sub <- na.omit(ssp1_tot_sub)
+ssp2_tot_sub <- ssp2_tot[,1:2];ssp2_tot_sub$group <- "ssp2";ssp2_tot_sub <- na.omit(ssp2_tot_sub)
+ssp5_tot_sub <- ssp5_tot[,1:2];ssp5_tot_sub$group <- "ssp5";ssp5_tot_sub <- na.omit(ssp5_tot_sub)
+
+
+#_ssp5_tot_
+ssp5_tot_sub <- ssp5_tot_sub %>%
+  arrange(match(ssp5_tot_sub$Country_name, curr_tot_sub$Country_name))
+curr_tot_sub$direct <- 0
+curr_tot_sub$ssp5_pred <- ssp5_tot_sub$pred_cost_mean
+curr_tot_sub$change <- curr_tot_sub$ssp5_pred-curr_tot_sub$pred_cost_mean
+for (i in 1:67){
+  if(curr_tot_sub$change[i]>0){curr_tot_sub$direct[i] = "increase"}
+  if(curr_tot_sub$change[i]<0){curr_tot_sub$direct[i] = "decrease"}
+  if(curr_tot_sub$change[i]==0){curr_tot_sub$direct[i] = "no change"}
+}
+curr_tot_sub <- curr_tot_sub[,1:4]
+ssp5_tot_sub$direct <- curr_tot_sub$direct
+bind_ssp5_tot_sub <- rbind(curr_tot_sub,ssp5_tot_sub)
+
+```
+#_dam_
+```{r}
+curr_dam_sub <- curr_dam[,4:5];curr_dam_sub$group <- "current";curr_dam_sub <- na.omit(curr_dam_sub)
+ssp1_dam_sub <- ssp1_dam[,4:5];ssp1_dam_sub$group <- "ssp1";ssp1_dam_sub <- na.omit(ssp1_dam_sub)
+ssp2_dam_sub <- ssp2_dam[,4:5];ssp2_dam_sub$group <- "ssp2";ssp2_dam_sub <- na.omit(ssp2_dam_sub)
+ssp5_dam_sub <- ssp5_dam[,4:5];ssp5_dam_sub$group <- "ssp5";ssp5_dam_sub <- na.omit(ssp5_dam_sub)
+
+#_ssp1_dam_
+ssp1_dam_sub <- ssp1_dam_sub %>%
+  arrange(match(ssp1_dam_sub$sub_Country_name, curr_dam_sub$sub_Country_name))
+curr_dam_sub$direct <- 0
+curr_dam_sub$ssp1_pred <- ssp1_dam_sub$sub_pred_cost_mean
+curr_dam_sub$change <- curr_dam_sub$ssp1_pred-curr_dam_sub$sub_pred_cost_mean
+for (i in 1:53){
+  if(curr_dam_sub$change[i]>0){curr_dam_sub$direct[i] = "increase"}
+  if(curr_dam_sub$change[i]<0){curr_dam_sub$direct[i] = "decrease"}
+  if(curr_dam_sub$change[i]==0){curr_dam_sub$direct[i] = "no change"}
+}
+curr_dam_sub <- curr_dam_sub[,1:4]
+ssp1_dam_sub$direct <- curr_dam_sub$direct
+bind_ssp1_dam_sub <- rbind(curr_dam_sub,ssp1_dam_sub)
+
+#_dam_
+curr_dam_sub <- curr_dam[,4:5];curr_dam_sub$group <- "current";curr_dam_sub <- na.omit(curr_dam_sub)
+ssp1_dam_sub <- ssp1_dam[,4:5];ssp1_dam_sub$group <- "ssp1";ssp1_dam_sub <- na.omit(ssp1_dam_sub)
+ssp2_dam_sub <- ssp2_dam[,4:5];ssp2_dam_sub$group <- "ssp2";ssp2_dam_sub <- na.omit(ssp2_dam_sub)
+ssp5_dam_sub <- ssp5_dam[,4:5];ssp5_dam_sub$group <- "ssp5";ssp5_dam_sub <- na.omit(ssp5_dam_sub)
+
+#_ssp2_dam_
+ssp2_dam_sub <- ssp2_dam_sub %>%
+  arrange(match(ssp2_dam_sub$sub_Country_name, curr_dam_sub$sub_Country_name))
+curr_dam_sub$direct <- 0
+curr_dam_sub$ssp2_pred <- ssp2_dam_sub$sub_pred_cost_mean
+curr_dam_sub$change <- curr_dam_sub$ssp2_pred-curr_dam_sub$sub_pred_cost_mean
+for (i in 1:53){
+  if(curr_dam_sub$change[i]>0){curr_dam_sub$direct[i] = "increase"}
+  if(curr_dam_sub$change[i]<0){curr_dam_sub$direct[i] = "decrease"}
+  if(curr_dam_sub$change[i]==0){curr_dam_sub$direct[i] = "no change"}
+}
+curr_dam_sub <- curr_dam_sub[,1:4]
+ssp2_dam_sub$direct <- curr_dam_sub$direct
+bind_ssp2_dam_sub <- rbind(curr_dam_sub,ssp2_dam_sub)
+
+#_dam_
+curr_dam_sub <- curr_dam[,4:5];curr_dam_sub$group <- "current";curr_dam_sub <- na.omit(curr_dam_sub)
+ssp1_dam_sub <- ssp1_dam[,4:5];ssp1_dam_sub$group <- "ssp1";ssp1_dam_sub <- na.omit(ssp1_dam_sub)
+ssp2_dam_sub <- ssp2_dam[,4:5];ssp2_dam_sub$group <- "ssp2";ssp2_dam_sub <- na.omit(ssp2_dam_sub)
+ssp5_dam_sub <- ssp5_dam[,4:5];ssp5_dam_sub$group <- "ssp5";ssp5_dam_sub <- na.omit(ssp5_dam_sub)
+
+#_ssp5_dam_
+ssp5_dam_sub <- ssp5_dam_sub %>%
+  arrange(match(ssp5_dam_sub$sub_Country_name, curr_dam_sub$sub_Country_name))
+curr_dam_sub$direct <- 0
+curr_dam_sub$ssp5_pred <- ssp5_dam_sub$sub_pred_cost_mean
+curr_dam_sub$change <- curr_dam_sub$ssp5_pred-curr_dam_sub$sub_pred_cost_mean
+for (i in 1:53){
+  if(curr_dam_sub$change[i]>0){curr_dam_sub$direct[i] = "increase"}
+  if(curr_dam_sub$change[i]<0){curr_dam_sub$direct[i] = "decrease"}
+  if(curr_dam_sub$change[i]==0){curr_dam_sub$direct[i] = "no change"}
+}
+curr_dam_sub <- curr_dam_sub[,1:4]
+ssp5_dam_sub$direct <- curr_dam_sub$direct
+bind_ssp5_dam_sub <- rbind(curr_dam_sub,ssp5_dam_sub)
+```
+#_mag_
+```{r}
+curr_mag_sub <- curr_mag[,4:5];curr_mag_sub$group <- "current";curr_mag_sub <- na.omit(curr_mag_sub)
+ssp1_mag_sub <- ssp1_mag[,4:5];ssp1_mag_sub$group <- "ssp1";ssp1_mag_sub <- na.omit(ssp1_mag_sub)
+ssp2_mag_sub <- ssp2_mag[,4:5];ssp2_mag_sub$group <- "ssp2";ssp2_mag_sub <- na.omit(ssp2_mag_sub)
+ssp5_mag_sub <- ssp5_mag[,4:5];ssp5_mag_sub$group <- "ssp5";ssp5_mag_sub <- na.omit(ssp5_mag_sub)
+
+#_ssp1_mag_
+ssp1_mag_sub <- ssp1_mag_sub %>%
+  arrange(match(ssp1_mag_sub$sub_Country_name, curr_mag_sub$sub_Country_name))
+curr_mag_sub$direct <- 0
+curr_mag_sub$ssp1_pred <- ssp1_mag_sub$sub_pred_cost_mean
+curr_mag_sub$change <- curr_mag_sub$ssp1_pred-curr_mag_sub$sub_pred_cost_mean
+for (i in 1:50){
+  if(curr_mag_sub$change[i]>0){curr_mag_sub$direct[i] = "increase"}
+  if(curr_mag_sub$change[i]<0){curr_mag_sub$direct[i] = "decrease"}
+  if(curr_mag_sub$change[i]==0){curr_mag_sub$direct[i] = "no change"}
+}
+curr_mag_sub <- curr_mag_sub[,1:4]
+ssp1_mag_sub$direct <- curr_mag_sub$direct
+bind_ssp1_mag_sub <- rbind(curr_mag_sub,ssp1_mag_sub)
+
+#_mag_
+curr_mag_sub <- curr_mag[,4:5];curr_mag_sub$group <- "current";curr_mag_sub <- na.omit(curr_mag_sub)
+ssp1_mag_sub <- ssp1_mag[,4:5];ssp1_mag_sub$group <- "ssp1";ssp1_mag_sub <- na.omit(ssp1_mag_sub)
+ssp2_mag_sub <- ssp2_mag[,4:5];ssp2_mag_sub$group <- "ssp2";ssp2_mag_sub <- na.omit(ssp2_mag_sub)
+ssp5_mag_sub <- ssp5_mag[,4:5];ssp5_mag_sub$group <- "ssp5";ssp5_mag_sub <- na.omit(ssp5_mag_sub)
+
+#_ssp2_mag_
+ssp2_mag_sub <- ssp2_mag_sub %>%
+  arrange(match(ssp2_mag_sub$sub_Country_name, curr_mag_sub$sub_Country_name))
+curr_mag_sub$direct <- 0
+curr_mag_sub$ssp2_pred <- ssp2_mag_sub$sub_pred_cost_mean
+curr_mag_sub$change <- curr_mag_sub$ssp2_pred-curr_mag_sub$sub_pred_cost_mean
+for (i in 1:50){
+  if(curr_mag_sub$change[i]>0){curr_mag_sub$direct[i] = "increase"}
+  if(curr_mag_sub$change[i]<0){curr_mag_sub$direct[i] = "decrease"}
+  if(curr_mag_sub$change[i]==0){curr_mag_sub$direct[i] = "no change"}
+}
+curr_mag_sub <- curr_mag_sub[,1:4]
+ssp2_mag_sub$direct <- curr_mag_sub$direct
+bind_ssp2_mag_sub <- rbind(curr_mag_sub,ssp2_mag_sub)
+
+#_mag_
+curr_mag_sub <- curr_mag[,4:5];curr_mag_sub$group <- "current";curr_mag_sub <- na.omit(curr_mag_sub)
+ssp1_mag_sub <- ssp1_mag[,4:5];ssp1_mag_sub$group <- "ssp1";ssp1_mag_sub <- na.omit(ssp1_mag_sub)
+ssp2_mag_sub <- ssp2_mag[,4:5];ssp2_mag_sub$group <- "ssp2";ssp2_mag_sub <- na.omit(ssp2_mag_sub)
+ssp5_mag_sub <- ssp5_mag[,4:5];ssp5_mag_sub$group <- "ssp5";ssp5_mag_sub <- na.omit(ssp5_mag_sub)
+
+#_ssp5_mag_
+ssp5_mag_sub <- ssp5_mag_sub %>%
+  arrange(match(ssp5_mag_sub$sub_Country_name, curr_mag_sub$sub_Country_name))
+curr_mag_sub$direct <- 0
+curr_mag_sub$ssp5_pred <- ssp5_mag_sub$sub_pred_cost_mean
+curr_mag_sub$change <- curr_mag_sub$ssp5_pred-curr_mag_sub$sub_pred_cost_mean
+for (i in 1:50){
+  if(curr_mag_sub$change[i]>0){curr_mag_sub$direct[i] = "increase"}
+  if(curr_mag_sub$change[i]<0){curr_mag_sub$direct[i] = "decrease"}
+  if(curr_mag_sub$change[i]==0){curr_mag_sub$direct[i] = "no change"}
+}
+curr_mag_sub <- curr_mag_sub[,1:4]
+ssp5_mag_sub$direct <- curr_mag_sub$direct
+bind_ssp5_mag_sub <- rbind(curr_mag_sub,ssp5_mag_sub)
+
+```
+
+
+#_tot_
+```{r}
+sizetext <- 7
+
+p1 <- ggplot(bind_ssp1_tot_sub,aes(x=group,y=pred_cost_mean, fill = group))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47")) +
+  scale_fill_manual(values = c("#97979770","#FD978070")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+
+p2 <- ggplot(bind_ssp2_tot_sub,aes(x=group,y=pred_cost_mean, fill = group))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47")) +
+  scale_fill_manual(values = c("#97979770","#FD978070")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+
+p3 <- ggplot(bind_ssp5_tot_sub,aes(x=group,y=pred_cost_mean, fill = group))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47")) +
+  scale_fill_manual(values = c("#97979770","#FD978070")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+
+
+pdf(width = 4.2, height = 1.5, file = "fig2a.pdf")
+grid.arrange(p1, p2, p3, ncol=3)
+
+dev.off()
+```
+
+#_dam_
+```{r}
+sizetext <- 7
+
+p1 <- ggplot(bind_ssp1_dam_sub,aes(x=group,y=sub_pred_cost_mean, fill = group))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=sub_Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47")) +
+  scale_fill_manual(values = c("#97979770","#A2A4CE70")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+
+p2 <- ggplot(bind_ssp2_dam_sub,aes(x=group,y=sub_pred_cost_mean, fill = group))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=sub_Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47")) +
+  scale_fill_manual(values = c("#97979770","#A2A4CE70")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+
+p3 <- ggplot(bind_ssp5_dam_sub,aes(x=group,y=sub_pred_cost_mean, fill = group))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=sub_Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47")) +
+  scale_fill_manual(values = c("#97979770","#A2A4CE70")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+
+
+pdf(width = 4.2, height = 1.5, file = "fig2b.pdf")
+grid.arrange(p1, p2, p3, ncol=3)
+
+dev.off()
+```
+
+#_mag_
+```{r}
+sizetext <- 7
+
+p1 <- ggplot(bind_ssp1_mag_sub,aes(x=group,y=sub_pred_cost_mean, fill = group))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=sub_Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47")) +
+  scale_fill_manual(values = c("#97979770","#99C9E370")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+
+p2 <- ggplot(bind_ssp2_mag_sub,aes(x=group,y=sub_pred_cost_mean, fill = group))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=sub_Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47")) +
+  scale_fill_manual(values = c("#97979770","#99C9E370")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+
+p3 <- ggplot(bind_ssp5_mag_sub,aes(x=group,y=sub_pred_cost_mean, fill = group))+
+  geom_violin(width= 0.7)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=sub_Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47")) +
+  scale_fill_manual(values = c("#97979770","#99C9E370")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+
+
+pdf(width = 4.2, height = 1.5, file = "fig2c.pdf")
+grid.arrange(p1, p2, p3, ncol=3)
+
+dev.off()
+```
+
+#legend
+```{r}
+pdf(width = 4.2, height = 1.5, file = "figa-c_legend.pdf")
+
+sizetext <- 7
+ggplot(bind_ssp5_mag_sub,aes(x=group,y=sub_pred_cost_mean, fill = group))+
+  geom_violin(color="#979797", width= 0.7, linewidth = 0.2)+
+  # geom_jitter(position = position_jitter(seed = 1, width = 0.06), aes(colour = "#00000099"), size = 0.8, alpha = 0.5)+
+  geom_jitter(width = 0.06, aes(colour = "#00000099"), size = 0.8, alpha = 0.65)+
+  # geom_point(size=1,alpha=0.4,colour = "#00000099")+
+  geom_line(aes(group=sub_Country_name,color=direct),linewidth=0.2,alpha=0.8)+
+  scale_color_manual(values = c("increase" = "#F2584B","decrease" = "#70AD47")) +
+  scale_fill_manual(values = c("white","#97979770")) +
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "right")+
+  labs(x="", y="Potential economic cost\n(millions of US$)")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#figure 3
+#_tot_
+```{r}
+curr_tot_sub <- curr_tot[,1:2];curr_tot_sub$group <- "current";curr_tot_sub <- na.omit(curr_tot_sub)
+ssp1_tot_sub <- ssp1_tot[,1:2];ssp1_tot_sub$group <- "ssp1";ssp1_tot_sub <- na.omit(ssp1_tot_sub)
+ssp2_tot_sub <- ssp2_tot[,1:2];ssp2_tot_sub$group <- "ssp2";ssp2_tot_sub <- na.omit(ssp2_tot_sub)
+ssp5_tot_sub <- ssp5_tot[,1:2];ssp5_tot_sub$group <- "ssp5";ssp5_tot_sub <- na.omit(ssp5_tot_sub)
+#_ssp1_tot_
+ssp1_tot_sub <- ssp1_tot_sub %>%
+  arrange(match(ssp1_tot_sub$Country_name, curr_tot_sub$Country_name))
+curr_tot_sub$prop <- 0
+curr_tot_sub$ssp1_pred <- ssp1_tot_sub$pred_cost_mean
+curr_tot_sub$prop <- ((curr_tot_sub$ssp1_pred-curr_tot_sub$pred_cost_mean)/curr_tot_sub$pred_cost_mean)*100
+curr_1_tot_sub <- curr_tot_sub[,1:4]
+
+curr_tot_sub <- curr_tot[,1:2];curr_tot_sub$group <- "current";curr_tot_sub <- na.omit(curr_tot_sub)
+ssp1_tot_sub <- ssp1_tot[,1:2];ssp1_tot_sub$group <- "ssp1";ssp1_tot_sub <- na.omit(ssp1_tot_sub)
+ssp2_tot_sub <- ssp2_tot[,1:2];ssp2_tot_sub$group <- "ssp2";ssp2_tot_sub <- na.omit(ssp2_tot_sub)
+ssp5_tot_sub <- ssp5_tot[,1:2];ssp5_tot_sub$group <- "ssp5";ssp5_tot_sub <- na.omit(ssp5_tot_sub)
+#_ssp2_tot_
+ssp2_tot_sub <- ssp2_tot_sub %>%
+  arrange(match(ssp2_tot_sub$Country_name, curr_tot_sub$Country_name))
+curr_tot_sub$prop <- 0
+curr_tot_sub$ssp2_pred <- ssp2_tot_sub$pred_cost_mean
+curr_tot_sub$prop <- ((curr_tot_sub$ssp2_pred-curr_tot_sub$pred_cost_mean)/curr_tot_sub$pred_cost_mean)*100
+curr_2_tot_sub <- curr_tot_sub[,1:4]
+
+curr_tot_sub <- curr_tot[,1:2];curr_tot_sub$group <- "current";curr_tot_sub <- na.omit(curr_tot_sub)
+ssp1_tot_sub <- ssp1_tot[,1:2];ssp1_tot_sub$group <- "ssp1";ssp1_tot_sub <- na.omit(ssp1_tot_sub)
+ssp2_tot_sub <- ssp2_tot[,1:2];ssp2_tot_sub$group <- "ssp2";ssp2_tot_sub <- na.omit(ssp2_tot_sub)
+ssp5_tot_sub <- ssp5_tot[,1:2];ssp5_tot_sub$group <- "ssp5";ssp5_tot_sub <- na.omit(ssp5_tot_sub)
+#_ssp5_tot_
+ssp5_tot_sub <- ssp5_tot_sub %>%
+  arrange(match(ssp5_tot_sub$Country_name, curr_tot_sub$Country_name))
+curr_tot_sub$prop <- 0
+curr_tot_sub$ssp5_pred <- ssp5_tot_sub$pred_cost_mean
+curr_tot_sub$prop <- ((curr_tot_sub$ssp5_pred-curr_tot_sub$pred_cost_mean)/curr_tot_sub$pred_cost_mean)*100
+curr_3_tot_sub <- curr_tot_sub[,1:4]
+
+curr_123_tot_sub <- curr_1_tot_sub[,1:3]
+curr_123_tot_sub$propchang_mean <- 0
+curr_123_tot_sub$propchang_sd <- 0
+curr_123_tot_sub$ssp1_curr <- curr_1_tot_sub[,4]
+curr_123_tot_sub$ssp2_curr <- curr_2_tot_sub[,4]
+curr_123_tot_sub$ssp5_curr <- curr_3_tot_sub[,4]
+curr_123_tot_sub$propchang_mean <- rowMeans(curr_123_tot_sub[,6:8])
+curr_123_tot_sub$propchang_sd <- apply(curr_123_tot_sub[,6:8],1,sd)
+
+for (i in 1:nrow(curr_123_tot_sub)){
+  if (curr_123_tot_sub$Country_name[i]=="Democratic Republic of the Congo"){curr_123_tot_sub$Country_name[i] = "D.R. Congo"}
+  if (curr_123_tot_sub$Country_name[i]=="USA"){curr_123_tot_sub$Country_name[i] = "United States"}
+  if (curr_123_tot_sub$Country_name[i]=="UK"){curr_123_tot_sub$Country_name[i] = "United Kingdom"}
+}
+```
+#_tot_ plotting, proportional change of cost(%)
+```{r}
+pdf(width = 3.5, height = 10, file = "fig3a.pdf")
+
+sizetext <- 10
+ggplot(curr_123_tot_sub, aes(x = reorder(Country_name, propchang_mean), y = propchang_mean, fill = propchang_mean)) +
+  geom_bar(stat = "identity", colour = "black", width = 0.78, position = position_dodge(0.7))+
+  geom_errorbar(aes(ymax = propchang_mean + propchang_sd, ymin = propchang_mean - propchang_sd), width = 0)+
+  scale_fill_gradient2(low = "#70AD47", high = "#F2584B", mid = "white", midpoint = 0, name = "Proportional change of\npotential economic cost(%)")+
+  coord_flip()+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none",
+        panel.background = element_rect(fill = '#EBEBEB', colour = '#EBEBEB'), 
+        panel.grid.minor = element_line(color = 'white'), 
+        panel.grid.major = element_line(color = 'white'))+
+  labs(x="", y="Proportional change of potential economic cost(%)")
+
+```
+
+#_dam_
+```{r}
+curr_dam_sub <- curr_dam[,4:5];curr_dam_sub$group <- "current";curr_dam_sub <- na.omit(curr_dam_sub)
+ssp1_dam_sub <- ssp1_dam[,4:5];ssp1_dam_sub$group <- "ssp1";ssp1_dam_sub <- na.omit(ssp1_dam_sub)
+ssp2_dam_sub <- ssp2_dam[,4:5];ssp2_dam_sub$group <- "ssp2";ssp2_dam_sub <- na.omit(ssp2_dam_sub)
+ssp5_dam_sub <- ssp5_dam[,4:5];ssp5_dam_sub$group <- "ssp5";ssp5_dam_sub <- na.omit(ssp5_dam_sub)
+#_ssp1_dam_
+ssp1_dam_sub <- ssp1_dam_sub %>%
+  arrange(match(ssp1_dam_sub$sub_Country_name, curr_dam_sub$sub_Country_name))
+curr_dam_sub$prop <- 0
+curr_dam_sub$ssp1_pred <- ssp1_dam_sub$sub_pred_cost_mean
+curr_dam_sub$prop <- ((curr_dam_sub$ssp1_pred-curr_dam_sub$sub_pred_cost_mean)/curr_dam_sub$sub_pred_cost_mean)*100
+curr_1_dam_sub <- curr_dam_sub[,1:4]
+
+curr_dam_sub <- curr_dam[,4:5];curr_dam_sub$group <- "current";curr_dam_sub <- na.omit(curr_dam_sub)
+ssp1_dam_sub <- ssp1_dam[,4:5];ssp1_dam_sub$group <- "ssp1";ssp1_dam_sub <- na.omit(ssp1_dam_sub)
+ssp2_dam_sub <- ssp2_dam[,4:5];ssp2_dam_sub$group <- "ssp2";ssp2_dam_sub <- na.omit(ssp2_dam_sub)
+ssp5_dam_sub <- ssp5_dam[,4:5];ssp5_dam_sub$group <- "ssp5";ssp5_dam_sub <- na.omit(ssp5_dam_sub)
+#_ssp2_dam_
+ssp2_dam_sub <- ssp2_dam_sub %>%
+  arrange(match(ssp2_dam_sub$sub_Country_name, curr_dam_sub$sub_Country_name))
+curr_dam_sub$prop <- 0
+curr_dam_sub$ssp2_pred <- ssp2_dam_sub$sub_pred_cost_mean
+curr_dam_sub$prop <- ((curr_dam_sub$ssp2_pred-curr_dam_sub$sub_pred_cost_mean)/curr_dam_sub$sub_pred_cost_mean)*100
+curr_2_dam_sub <- curr_dam_sub[,1:4]
+
+curr_dam_sub <- curr_dam[,4:5];curr_dam_sub$group <- "current";curr_dam_sub <- na.omit(curr_dam_sub)
+ssp1_dam_sub <- ssp1_dam[,4:5];ssp1_dam_sub$group <- "ssp1";ssp1_dam_sub <- na.omit(ssp1_dam_sub)
+ssp2_dam_sub <- ssp2_dam[,4:5];ssp2_dam_sub$group <- "ssp2";ssp2_dam_sub <- na.omit(ssp2_dam_sub)
+ssp5_dam_sub <- ssp5_dam[,4:5];ssp5_dam_sub$group <- "ssp5";ssp5_dam_sub <- na.omit(ssp5_dam_sub)
+#_ssp5_dam_
+ssp5_dam_sub <- ssp5_dam_sub %>%
+  arrange(match(ssp5_dam_sub$sub_Country_name, curr_dam_sub$sub_Country_name))
+curr_dam_sub$prop <- 0
+curr_dam_sub$ssp5_pred <- ssp5_dam_sub$sub_pred_cost_mean
+curr_dam_sub$prop <- ((curr_dam_sub$ssp5_pred-curr_dam_sub$sub_pred_cost_mean)/curr_dam_sub$sub_pred_cost_mean)*100
+curr_3_dam_sub <- curr_dam_sub[,1:4]
+
+curr_123_dam_sub <- curr_1_dam_sub[,1:3]
+curr_123_dam_sub$propchang_mean <- 0
+curr_123_dam_sub$propchang_sd <- 0
+curr_123_dam_sub$ssp1_curr <- curr_1_dam_sub[,4]
+curr_123_dam_sub$ssp2_curr <- curr_2_dam_sub[,4]
+curr_123_dam_sub$ssp5_curr <- curr_3_dam_sub[,4]
+curr_123_dam_sub$propchang_mean <- rowMeans(curr_123_dam_sub[,6:8])
+curr_123_dam_sub$propchang_sd <- apply(curr_123_dam_sub[,6:8],1,sd)
+
+for (i in 1:nrow(curr_123_dam_sub)){
+  if (curr_123_dam_sub$sub_Country_name[i]=="Democratic Republic of the Congo"){curr_123_dam_sub$sub_Country_name[i] = "D.R. Congo"}
+  if (curr_123_dam_sub$sub_Country_name[i]=="USA"){curr_123_dam_sub$sub_Country_name[i] = "United States"}
+  if (curr_123_dam_sub$sub_Country_name[i]=="UK"){curr_123_dam_sub$sub_Country_name[i] = "United Kingdom"}
+}
+```
+#_dam_ plotting, proportional change of cost(%)
+```{r}
+pdf(width = 3.5, height = 10, file = "fig3b.pdf")
+
+sizetext <- 10
+ggplot(curr_123_dam_sub, aes(x = reorder(sub_Country_name, propchang_mean), y = propchang_mean, fill = propchang_mean)) +
+  geom_bar(stat = "identity", colour = "black", width = 0.78, position = position_dodge(0.7))+
+  geom_errorbar(aes(ymax = propchang_mean + propchang_sd, ymin = propchang_mean - propchang_sd), width = 0)+
+  scale_fill_gradient2(low = "#70AD47", high = "#7772B2", mid = "white", midpoint = 0, name = "Proportional change of\npotential economic cost(%)")+
+  coord_flip()+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none",
+        panel.background = element_rect(fill = '#EBEBEB', colour = '#EBEBEB'), 
+        panel.grid.minor = element_line(color = 'white'), 
+        panel.grid.major = element_line(color = 'white'))+
+  labs(x="", y="Proportional change of potential economic cost(%)")
+
+```
+
+#_mag_
+```{r}
+curr_mag_sub <- curr_mag[,4:5];curr_mag_sub$group <- "current";curr_mag_sub <- na.omit(curr_mag_sub)
+ssp1_mag_sub <- ssp1_mag[,4:5];ssp1_mag_sub$group <- "ssp1";ssp1_mag_sub <- na.omit(ssp1_mag_sub)
+ssp2_mag_sub <- ssp2_mag[,4:5];ssp2_mag_sub$group <- "ssp2";ssp2_mag_sub <- na.omit(ssp2_mag_sub)
+ssp5_mag_sub <- ssp5_mag[,4:5];ssp5_mag_sub$group <- "ssp5";ssp5_mag_sub <- na.omit(ssp5_mag_sub)
+#_ssp1_mag_
+ssp1_mag_sub <- ssp1_mag_sub %>%
+  arrange(match(ssp1_mag_sub$sub_Country_name, curr_mag_sub$sub_Country_name))
+curr_mag_sub$prop <- 0
+curr_mag_sub$ssp1_pred <- ssp1_mag_sub$sub_pred_cost_mean
+curr_mag_sub$prop <- ((curr_mag_sub$ssp1_pred-curr_mag_sub$sub_pred_cost_mean)/curr_mag_sub$sub_pred_cost_mean)*100
+curr_1_mag_sub <- curr_mag_sub[,1:4]
+
+curr_mag_sub <- curr_mag[,4:5];curr_mag_sub$group <- "current";curr_mag_sub <- na.omit(curr_mag_sub)
+ssp1_mag_sub <- ssp1_mag[,4:5];ssp1_mag_sub$group <- "ssp1";ssp1_mag_sub <- na.omit(ssp1_mag_sub)
+ssp2_mag_sub <- ssp2_mag[,4:5];ssp2_mag_sub$group <- "ssp2";ssp2_mag_sub <- na.omit(ssp2_mag_sub)
+ssp5_mag_sub <- ssp5_mag[,4:5];ssp5_mag_sub$group <- "ssp5";ssp5_mag_sub <- na.omit(ssp5_mag_sub)
+#_ssp2_mag_
+ssp2_mag_sub <- ssp2_mag_sub %>%
+  arrange(match(ssp2_mag_sub$sub_Country_name, curr_mag_sub$sub_Country_name))
+curr_mag_sub$prop <- 0
+curr_mag_sub$ssp2_pred <- ssp2_mag_sub$sub_pred_cost_mean
+curr_mag_sub$prop <- ((curr_mag_sub$ssp2_pred-curr_mag_sub$sub_pred_cost_mean)/curr_mag_sub$sub_pred_cost_mean)*100
+curr_2_mag_sub <- curr_mag_sub[,1:4]
+
+curr_mag_sub <- curr_mag[,4:5];curr_mag_sub$group <- "current";curr_mag_sub <- na.omit(curr_mag_sub)
+ssp1_mag_sub <- ssp1_mag[,4:5];ssp1_mag_sub$group <- "ssp1";ssp1_mag_sub <- na.omit(ssp1_mag_sub)
+ssp2_mag_sub <- ssp2_mag[,4:5];ssp2_mag_sub$group <- "ssp2";ssp2_mag_sub <- na.omit(ssp2_mag_sub)
+ssp5_mag_sub <- ssp5_mag[,4:5];ssp5_mag_sub$group <- "ssp5";ssp5_mag_sub <- na.omit(ssp5_mag_sub)
+#_ssp5_mag_
+ssp5_mag_sub <- ssp5_mag_sub %>%
+  arrange(match(ssp5_mag_sub$sub_Country_name, curr_mag_sub$sub_Country_name))
+curr_mag_sub$prop <- 0
+curr_mag_sub$ssp5_pred <- ssp5_mag_sub$sub_pred_cost_mean
+curr_mag_sub$prop <- ((curr_mag_sub$ssp5_pred-curr_mag_sub$sub_pred_cost_mean)/curr_mag_sub$sub_pred_cost_mean)*100
+curr_3_mag_sub <- curr_mag_sub[,1:4]
+
+curr_123_mag_sub <- curr_1_mag_sub[,1:3]
+curr_123_mag_sub$propchang_mean <- 0
+curr_123_mag_sub$propchang_sd <- 0
+curr_123_mag_sub$ssp1_curr <- curr_1_mag_sub[,4]
+curr_123_mag_sub$ssp2_curr <- curr_2_mag_sub[,4]
+curr_123_mag_sub$ssp5_curr <- curr_3_mag_sub[,4]
+curr_123_mag_sub$propchang_mean <- rowMeans(curr_123_mag_sub[,6:8])
+curr_123_mag_sub$propchang_sd <- apply(curr_123_mag_sub[,6:8],1,sd)
+
+for (i in 1:nrow(curr_123_mag_sub)){
+  if (curr_123_mag_sub$sub_Country_name[i]=="Democratic Republic of the Congo"){curr_123_mag_sub$sub_Country_name[i] = "D.R. Congo"}
+  if (curr_123_mag_sub$sub_Country_name[i]=="USA"){curr_123_mag_sub$sub_Country_name[i] = "United States"}
+  if (curr_123_mag_sub$sub_Country_name[i]=="UK"){curr_123_mag_sub$sub_Country_name[i] = "United Kingdom"}
+}
+```
+#_mag_ plotting, proportional change of cost(%)
+```{r}
+pdf(width = 3.5, height = 10, file = "fig3c.pdf")
+
+sizetext <- 10
+ggplot(curr_123_mag_sub, aes(x = reorder(sub_Country_name, propchang_mean), y = propchang_mean, fill = propchang_mean)) +
+  geom_bar(stat = "identity", colour = "black", width = 0.78, position = position_dodge(0.7))+
+  geom_errorbar(aes(ymax = propchang_mean + propchang_sd, ymin = propchang_mean - propchang_sd), width = 0)+
+  scale_fill_gradient2(low = "#70AD47", high = "#6AAED8", mid = "white", midpoint = 0, name = "Proportional change of\npotential economic cost(%)")+
+  coord_flip()+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none",
+        panel.background = element_rect(fill = '#EBEBEB', colour = '#EBEBEB'), 
+        panel.grid.minor = element_line(color = 'white'), 
+        panel.grid.major = element_line(color = 'white'))+
+  labs(x="", y="Proportional change of potential economic cost(%)")
+
+```
+
+
+
+
+
+
+
+
+#plotting the rank of cost
+```{r}
+
+#_tot_
+curr_tot_sub <- curr_tot[,1:2];curr_tot_sub$group <- "current";curr_tot_sub <- na.omit(curr_tot_sub)
+ssp1_tot_sub <- ssp1_tot[,1:2];ssp1_tot_sub$group <- "ssp1";ssp1_tot_sub <- na.omit(ssp1_tot_sub)
+ssp2_tot_sub <- ssp2_tot[,1:2];ssp2_tot_sub$group <- "ssp2";ssp2_tot_sub <- na.omit(ssp2_tot_sub)
+ssp5_tot_sub <- ssp5_tot[,1:2];ssp5_tot_sub$group <- "ssp5";ssp5_tot_sub <- na.omit(ssp5_tot_sub)
+bind_all_tot_sub <- rbind(curr_tot_sub,ssp1_tot_sub,ssp2_tot_sub,ssp5_tot_sub)
+for (i in 1:nrow(bind_all_tot_sub)){
+  if (bind_all_tot_sub$Country_name[i]=="Democratic Republic of the Congo"){bind_all_tot_sub$Country_name[i] = "D.R. Congo"}
+  if (bind_all_tot_sub$Country_name[i]=="USA"){bind_all_tot_sub$Country_name[i] = "United States"}
+  if (bind_all_tot_sub$Country_name[i]=="UK"){bind_all_tot_sub$Country_name[i] = "United Kingdom"}
+}
+bind_all_tot_sub$Country_name <- factor(bind_all_tot_sub$Country_name,
+                       levels = rev(c("United States",
+                                      "Canada",
+                                      "China",
+                                      "Australia",
+                                      "India",
+                                      "Thailand",
+                                      "Argentina",
+                                      "Philippines",
+                                      "Vietnam",
+                                      "Indonesia",
+                                      "Malaysia",
+                                      "Brazil",
+                                      "Cambodia",
+                                      "Peru",
+                                      "New Zealand",
+                                      "Mexico",
+                                      "Tanzania",
+                                      "D.R. Congo",
+                                      "Uganda",
+                                      "Singapore",
+                                      "Malawi",
+                                      "Mozambique",
+                                      "Ethiopia",
+                                      "Cuba",
+                                      "Chile",
+                                      "Nigeria",
+                                      "Ghana",
+                                      "Norway",
+                                      "Bolivia",
+                                      "Paraguay",
+                                      "Myanmar",
+                                      "Uruguay",
+                                      "Cameroon",
+                                      "Guatemala",
+                                      "Benin",
+                                      "Germany",
+                                      "Zambia",
+                                      "Zimbabwe",
+                                      "Laos",
+                                      "Japan",
+                                      "Suriname",
+                                      "Belize",
+                                      "Timor-Leste",
+                                      "Brunei",
+                                      "Bhutan",
+                                      "United Kingdom",
+                                      "Kenya",
+                                      "Austria",
+                                      "France",
+                                      "Nicaragua",
+                                      "Colombia",
+                                      "Ecuador",
+                                      "Panama",
+                                      "Sweden",
+                                      "Spain",
+                                      "Netherlands",
+                                      "Italy",
+                                      "Pakistan",
+                                      "Fiji",
+                                      "Denmark",
+                                      "Iceland",
+                                      "Finland",
+                                      "Portugal",
+                                      "Malta",
+                                      "Lithuania",
+                                      "Togo",
+                                      "Venezuela")))
+
+
+#_dam_
+curr_dam_sub <- curr_dam[,4:5];curr_dam_sub$group <- "current";curr_dam_sub <- na.omit(curr_dam_sub)
+ssp1_dam_sub <- ssp1_dam[,4:5];ssp1_dam_sub$group <- "ssp1";ssp1_dam_sub <- na.omit(ssp1_dam_sub)
+ssp2_dam_sub <- ssp2_dam[,4:5];ssp2_dam_sub$group <- "ssp2";ssp2_dam_sub <- na.omit(ssp2_dam_sub)
+ssp5_dam_sub <- ssp5_dam[,4:5];ssp5_dam_sub$group <- "ssp5";ssp5_dam_sub <- na.omit(ssp5_dam_sub)
+bind_all_dam_sub <- rbind(curr_dam_sub,ssp1_dam_sub,ssp2_dam_sub,ssp5_dam_sub)
+for (i in 1:nrow(bind_all_dam_sub)){
+  if (bind_all_dam_sub$sub_Country_name[i]=="Democratic Republic of the Congo"){bind_all_dam_sub$sub_Country_name[i] = "D.R. Congo"}
+  if (bind_all_dam_sub$sub_Country_name[i]=="USA"){bind_all_dam_sub$sub_Country_name[i] = "United States"}
+  if (bind_all_dam_sub$sub_Country_name[i]=="UK"){bind_all_dam_sub$sub_Country_name[i] = "United Kingdom"}
+}
+bind_all_dam_sub$sub_Country_name <- factor(bind_all_dam_sub$sub_Country_name,
+                       levels = rev(c(
+"United States",
+"Canada",
+"China",
+"India",
+"Australia",
+"Thailand",
+"Argentina",
+"Philippines",
+"Vietnam",
+"Indonesia",
+"Malaysia",
+"Cambodia",
+"Tanzania",
+"Brazil",
+"D.R. Congo",
+"Peru",
+"Mexico",
+"Uganda",
+"Malawi",
+"Singapore",
+"Mozambique",
+"Ethiopia",
+"New Zealand",
+"Cuba",
+"Chile",
+"Nigeria",
+"Ghana",
+"Norway",
+"Myanmar",
+"Cameroon",
+"Bolivia",
+"Paraguay",
+"Benin",
+"Uruguay",
+"Guatemala",
+"Zambia",
+"Zimbabwe",
+"Laos",
+"Suriname",
+"Japan",
+"Timor-Leste",
+"Belize",
+"Brunei",
+"Bhutan",
+"Germany",
+"Kenya",
+"United Kingdom",
+"Sweden",
+"Netherlands",
+"Pakistan",
+"Italy",
+"Fiji",
+"Portugal")))
+
+
+#_mag_
+curr_mag_sub <- curr_mag[,4:5];curr_mag_sub$group <- "current";curr_mag_sub <- na.omit(curr_mag_sub)
+ssp1_mag_sub <- ssp1_mag[,4:5];ssp1_mag_sub$group <- "ssp1";ssp1_mag_sub <- na.omit(ssp1_mag_sub)
+ssp2_mag_sub <- ssp2_mag[,4:5];ssp2_mag_sub$group <- "ssp2";ssp2_mag_sub <- na.omit(ssp2_mag_sub)
+ssp5_mag_sub <- ssp5_mag[,4:5];ssp5_mag_sub$group <- "ssp5";ssp5_mag_sub <- na.omit(ssp5_mag_sub)
+bind_all_mag_sub <- rbind(curr_mag_sub,ssp1_mag_sub,ssp2_mag_sub,ssp5_mag_sub)
+for (i in 1:nrow(bind_all_mag_sub)){
+  if (bind_all_mag_sub$sub_Country_name[i]=="Democratic Republic of the Congo"){bind_all_mag_sub$sub_Country_name[i] = "D.R. Congo"}
+  if (bind_all_mag_sub$sub_Country_name[i]=="USA"){bind_all_mag_sub$sub_Country_name[i] = "United States"}
+  if (bind_all_mag_sub$sub_Country_name[i]=="UK"){bind_all_mag_sub$sub_Country_name[i] = "United Kingdom"}
+}
+bind_all_mag_sub$sub_Country_name <- factor(bind_all_mag_sub$sub_Country_name,
+                       levels = rev(c(
+"United States",
+"Australia",
+"New Zealand",
+"Thailand",
+"Brazil",
+"Canada",
+"Peru",
+"India",
+"Argentina",
+"China",
+"Germany",
+"Mexico",
+"Malaysia",
+"Austria",
+"Indonesia",
+"Cambodia",
+"France",
+"Nicaragua",
+"Cuba",
+"Vietnam",
+"Colombia",
+"Chile",
+"Philippines",
+"Japan",
+"Bolivia",
+"Paraguay",
+"Ecuador",
+"Uruguay",
+"Guatemala",
+"United Kingdom",
+"Panama",
+"Singapore",
+"Spain",
+"Belize",
+"Italy",
+"Norway",
+"Netherlands",
+"Ghana",
+"Denmark",
+"Sweden",
+"Fiji",
+"Iceland",
+"Finland",
+"Tanzania",
+"Malta",
+"Lithuania",
+"Kenya",
+"Benin",
+"Togo",
+"Venezuela")))
+
+```
+#plotting
+```{r}
+sizetext <- 12
+
+p1 <- ggplot(bind_all_tot_sub, aes(pred_cost_mean, Country_name,color=group))+
+  geom_point(shape = 19, size = 4, alpha = 0.5)+
+  scale_color_manual(values = c("current"="black","ssp1"="#F8E9A4","ssp2"="#F29846","ssp5"="#FF3300"),name = "")+
+  scale_x_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  labs(x="Potential total economic cost\n(millions of US$)", y="")+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "top",
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        panel.background = element_rect(fill = '#EBEBEB', colour = '#EBEBEB'), 
+        panel.grid.minor = element_line(color = 'white'), 
+        panel.grid.major = element_line(color = 'white'))
+
+p2 <- ggplot(bind_all_dam_sub, aes(sub_pred_cost_mean, sub_Country_name,color=group))+
+  geom_point(shape = 19, size = 4, alpha = 0.5)+
+  scale_color_manual(values = c("current"="black","ssp1"="#D5D5E7","ssp2"="#7772B2","ssp5"="#9933FF"),name = "")+
+  scale_x_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  labs(x="Potential damage economic cost\n(millions of US$)", y="")+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "top",
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        panel.background = element_rect(fill = '#EBEBEB', colour = '#EBEBEB'), 
+        panel.grid.minor = element_line(color = 'white'), 
+        panel.grid.major = element_line(color = 'white'))
+
+p3 <- ggplot(bind_all_mag_sub, aes(sub_pred_cost_mean, sub_Country_name,color=group))+
+  geom_point(shape = 19, size = 4, alpha = 0.5)+
+  scale_color_manual(values = c("current"="black","ssp1"="#CEDFF0","ssp2"="#6AAED8","ssp5"="#3399FF"),name = "")+
+  scale_x_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  labs(x="Potential management economic cost\n(millions of US$)", y="")+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "top",
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        panel.background = element_rect(fill = '#EBEBEB', colour = '#EBEBEB'), 
+        panel.grid.minor = element_line(color = 'white'), 
+        panel.grid.major = element_line(color = 'white'))
+
+pdf(width = 16, height = 14, file = "FIGURE 1_EXTRA.pdf")
+grid.arrange(p1, p2, p3, ncol=3)
+
+dev.off()
+```

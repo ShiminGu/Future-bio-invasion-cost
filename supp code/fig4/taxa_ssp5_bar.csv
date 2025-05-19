@@ -1,0 +1,171 @@
+﻿Class_code,Species,Type_of_cost_merged,pred_cost_mean,s_Class_code,s_Species,s_Damage,s_manage,s_mixed,s_unspecified,s_pred_cost_mean
+Amphibian,Lithobates catesbeianus,Management,0.096868319,terrinv,Aedes aegypti,0,0,0,0,113301.5027
+Amphibian,Rhinella marina,Management,47.98085636,terrinv,Anthonomus grandis,0,0,0,0,94231.12183
+Amphibian,Xenopus laevis,Management,0.02307698,Mammal,Rattus rattus,0,0,0,0,69300.66062
+Bird,Alopochen aegyptiaca,Damage,1.064448078,terrinv,Coptotermes formosanus,0,0,0,0,49347.85136
+Bird,Branta canadensis,Damage,2.078104579,terrinv,Bursaphelenchus mucronatus,0,0,0,0,32487.77239
+Bird,Branta canadensis,Management,3.367859364,terrinv,Spodoptera frugiperda,0,0,0,0,23675.85069
+Bird,Cygnus olor,Damage,0.048038688,terrinv,Haematobia irritans,0,0,0,0,18692.0863
+Bird,Cygnus olor,Management,0.886555002,terrinv,Rhipicephalus microplus,0,0,0,0,16286.59909
+Bird,Myiopsitta monachus,Management,4.728954206,terrinv,Stomoxys calcitrans,0,0,0,0,13035.9406
+Bird,Oxyura jamaicensis,Management,21.49859459,terrinv,Anoplophora glabripennis,0,0,0,0,13454.72894
+Bird,Phasianus colchicus,Damage,6.725501455,terrinv,Cochliomyia hominivorax,0,0,0,0,11188.94993
+Bird,Psittacula krameri,Damage,133.1519597,terrinv,Lymantria dispar,0,0,0,0,11015.503
+Bird,Psittacula krameri,Management,0.376667539,Freshwater,Dreissena polymorpha,0,0,0,0,10643.10396
+Fish,Phoxinus phoxinus,Management,0.678241885,terrinv,Phenacoccus solenopsis,0,0,0,0,8735.47128
+Fish,Pseudorasbora parva,Management,1.577256726,terrinv,Hypera postica,0,0,0,0,8574.514597
+Fish,Tinca tinca,Management,0.225482471,Mammal,Sus scrofa,0,0,0,0,8244.805533
+Freshwater,Corbicula fluminea,Damage,0.533186135,Mammal,Felis catus,0,0,0,0,8186.814962
+Freshwater,Dreissena polymorpha,Management,13.17281907,terrinv,Adelges piceae,0,0,0,0,8167.185907
+Freshwater,Dreissena polymorpha,Mixed,5460.771944,Mammal,Canis lupus,0,0,0,0,7755.200005
+Freshwater,Dreissena polymorpha,Unspecified,5169.159195,terrinv,Cydia pomonella,0,0,0,0,5824.454772
+Freshwater,Gyrodactylus salaris,Damage,1740.157634,Freshwater,Pomacea canaliculata,0,0,0,0,4460.550084
+Freshwater,Limnoperna fortunei,Management,39.75449989,terrinv,Chilo partellus,0,0,0,0,3558.666564
+Freshwater,Pacifastacus leniusculus,Damage,0.565357133,Mammal,Oryctolagus cuniculus,0,0,0,0,2526.515767
+Freshwater,Pacifastacus leniusculus,Management,6.42355372,Freshwater,Petromyzon marinus,0,0,0,0,1768.435708
+Freshwater,Pacifastacus leniusculus,Mixed,6.464877349,Freshwater,Gyrodactylus salaris,0,0,0,0,1740.157634
+Freshwater,Petromyzon marinus,Damage,1676.321962,terrinv,Listronotus bonariensis,0,0,0,0,1626.8519
+Freshwater,Petromyzon marinus,Management,92.11374585,terrinv,Ceutorhynchus obstrictus,0,0,0,0,1462.548993
+Freshwater,Pomacea canaliculata,Damage,4268.531822,terrinv,Agrilus planipennis,0,0,0,0,1382.994139
+Freshwater,Pomacea canaliculata,Mixed,192.0182623,terrinv,Paracoccus marginatus,0,0,0,0,1245.861155
+Freshwater,Procambarus clarkii,Damage,2.600112742,terrinv,Solenopsis invicta,0,0,0,0,1073.223934
+Freshwater,Procambarus clarkii,Management,5.997489223,terrinv,Bactrocera philippinensis,0,0,0,0,1061.226461
+Mammal,Callosciurus erythraeus,Damage,3.242112176,terrinv,Aedes camptorhynchus,0,0,0,0,1060.648108
+Mammal,Camelus dromedarius,Damage,34.1332878,terrinv,Teia anartoides,0,0,0,0,968.6423231
+Mammal,Camelus dromedarius,Management,23.14801716,terrinv,Halotydeus destructor,0,0,0,0,949.9066358
+Mammal,Canis lupus,Damage,2680.609513,terrinv,Liriomyza sativae,0,0,0,0,878.3269256
+Mammal,Canis lupus,Management,5074.590492,Mammal,Ondatra zibethicus,0,0,0,0,772.8430613
+Mammal,Capra hircus,Damage,165.9806806,terrinv,Anopheles darlingi,0,0,0,0,726.521063
+Mammal,Capra hircus,Management,45.37012001,terrinv,Nilaparvata lugens,0,0,0,0,652.2697568
+Mammal,Castor canadensis,Damage,1.413598685,Mammal,Trichosurus vulpecula,0,0,0,0,546.0672685
+Mammal,Equus caballus,Management,1.230214536,terrinv,Frankliniella occidentalis,0,0,0,0,507.1677927
+Mammal,Felis catus,Damage,12.94953169,terrinv,Ceratitis capitata,0,0,0,0,467.387093
+Mammal,Felis catus,Management,1.288008606,Mammal,Vulpes vulpes,0,0,0,0,441.2673076
+Mammal,Felis catus,Mixed,8172.577422,terrinv,Bactrocera tryoni,0,0,0,0,402.5938723
+Mammal,Hemitragus jemlahicus,Management,2.934926001,terrinv,Cactoblastis cactorum,0,0,0,0,314.1034814
+Mammal,Herpestes javanicus,Damage,1.587012309,terrinv,Sirex noctilio,0,0,0,0,221.4785207
+Mammal,Muntiacus reevesi,Damage,1.300100126,Mammal,Neovison vison,0,0,0,0,218.7815408
+Mammal,Mus musculus,Damage,42.57561023,Mammal,Capra hircus,0,0,0,0,211.3508006
+Mammal,Mustela erminea,Management,7.573009077,terrinv,Scirtothrips perseae,0,0,0,0,175.2019364
+Mammal,Myocastor coypus,Damage,81.5823051,terrinv,Phthorimaea operculella,0,0,0,0,165.0320238
+Mammal,Myocastor coypus,Management,6.907202919,terrinv,Drosophila suzukii,0,0,0,0,144.0003009
+Mammal,Neovison vison,Damage,25.44107216,terrinv,Arion lusitanicus,0,0,0,0,139.8799634
+Mammal,Neovison vison,Management,193.3404687,terrinv,Pectinophora gossypiella,0,0,0,0,138.5686629
+Mammal,Nyctereutes procyonoides,Management,4.846940803,Bird,Psittacula krameri,0,0,0,0,133.5286272
+Mammal,Ondatra zibethicus,Damage,651.3884741,Mammal,Paguma larvata,0,0,0,0,127.30261
+Mammal,Ondatra zibethicus,Management,121.4545872,terrinv,Anastrepha fraterculus,0,0,0,0,124.0065123
+Mammal,Oryctolagus cuniculus,Damage,2468.72216,Mammal,Procyon lotor,0,0,0,0,105.3724358
+Mammal,Oryctolagus cuniculus,Management,57.793607,Mammal,Rattus norvegicus,0,0,0,0,96.84335249
+Mammal,Paguma larvata,Damage,127.30261,Mammal,Myocastor coypus,0,0,0,0,88.48950802
+Mammal,Phascolarctos cinereus,Management,0.58155895,terrinv,Leptinotarsa decemlineata,0,0,0,0,71.67424085
+Mammal,Procyon lotor,Damage,105.1984447,terrinv,Cameraria ohridella,0,0,0,0,66.41159784
+Mammal,Procyon lotor,Management,0.17399109,terrinv,Anoplophora chinensis,0,0,0,0,61.91984445
+Mammal,Rattus exulans,Management,2.900932293,Mammal,Camelus dromedarius,0,0,0,0,57.28130496
+Mammal,Rattus norvegicus,Management,84.11445921,terrinv,Coptotermes gestroi,0,0,0,0,49.44108568
+Mammal,Rattus norvegicus,Mixed,12.72889328,terrinv,Liriomyza huidobrensis,0,0,0,0,48.80939457
+Mammal,Rattus rattus,Damage,69300.66062,Amphibian,Rhinella marina,0,0,0,0,47.98085636
+Mammal,Sciurus carolinensis,Damage,31.69874656,Mammal,Sciurus carolinensis,0,0,0,0,47.0497931
+Mammal,Sciurus carolinensis,Management,15.35104654,Mammal,Mus musculus,0,0,0,0,42.57561023
+Mammal,Sus scrofa,Damage,8222.75565,terrinv,Hypothenemus hampei,0,0,0,0,40.19497222
+Mammal,Sus scrofa,Management,22.04988299,Freshwater,Limnoperna fortunei,0,0,0,0,39.75449989
+Mammal,Trichosurus vulpecula,Management,546.0672685,terrinv,Vespula germanica,0,0,0,0,36.6119368
+Mammal,Vulpes vulpes,Damage,400.0948387,terrinv,Bruchus pisorum,0,0,0,0,34.83601445
+Mammal,Vulpes vulpes,Management,41.17246889,terrinv,Elatobium abietinum,0,0,0,0,27.3715398
+Reptilia,Anolis carolinensis,Management,0.21332666,terrinv,Lissachatina fulica,0,0,0,0,24.62739234
+Reptilia,Boiga irregularis,Management,3.392373965,terrinv,Hyphantria cunea,0,0,0,0,22.07499113
+Reptilia,Chelydra serpentina,Management,0.0866559,Bird,Oxyura jamaicensis,0,0,0,0,21.49859459
+Reptilia,Trachemys scripta,Management,1.456459458,terrinv,Ephestia kuehniella,0,0,0,0,16.93841487
+terrinv,Adelges piceae,Damage,8167.185907,terrinv,Adelges tsugae,0,0,0,0,13.71629948
+terrinv,Adelges tsugae,Management,13.71629948,Freshwater,Pacifastacus leniusculus,0,0,0,0,13.4537882
+terrinv,Aedes aegypti,Damage,99644.77024,terrinv,Rhynchophorus ferrugineus,0,0,0,0,11.85006401
+terrinv,Aedes aegypti,Management,13647.59492,Freshwater,Procambarus clarkii,0,0,0,0,8.597601965
+terrinv,Aedes aegypti,Mixed,9.137562341,terrinv,Aedes albopictus,0,0,0,0,7.590067049
+terrinv,Aedes albopictus,Management,7.590067049,Mammal,Mustela erminea,0,0,0,0,7.573009077
+terrinv,Aedes camptorhynchus,Management,1060.648108,terrinv,Vespa velutina,0,0,0,0,7.412934971
+terrinv,Agrilus planipennis,Management,1382.994139,terrinv,Daktulosphaira vitifoliae,0,0,0,0,7.075693889
+terrinv,Aleurodicus rugioperculatus,Management,0.000727445,Bird,Phasianus colchicus,0,0,0,0,6.725501455
+terrinv,Anastrepha fraterculus,Damage,110.0317759,terrinv,Linepithema humile,0,0,0,0,6.63436384
+terrinv,Anastrepha fraterculus,Management,13.97473637,Bird,Branta canadensis,0,0,0,0,5.445963943
+terrinv,Anopheles darlingi,Management,726.521063,Mammal,Nyctereutes procyonoides,0,0,0,0,4.846940803
+terrinv,Anoplophora chinensis,Management,61.91984445,Bird,Myiopsitta monachus,0,0,0,0,4.728954206
+terrinv,Anoplophora glabripennis,Damage,4239.896433,Reptilia,Boiga irregularis,0,0,0,0,3.392373965
+terrinv,Anoplophora glabripennis,Management,9214.832508,Mammal,Callosciurus erythraeus,0,0,0,0,3.242112176
+terrinv,Anthonomus grandis,Damage,1211.690004,terrinv,Globodera rostochiensis,0,0,0,0,3.154195312
+terrinv,Anthonomus grandis,Management,1800.112766,Mammal,Hemitragus jemlahicus,0,0,0,0,2.934926001
+terrinv,Anthonomus grandis,Mixed,89665.06028,Mammal,Rattus exulans,0,0,0,0,2.900932293
+terrinv,Anthonomus grandis,Unspecified,1554.258782,terrinv,Vespula vulgaris,0,0,0,0,2.735770889
+terrinv,Arion lusitanicus,Damage,139.8799634,terrinv,Raoiella indica,0,0,0,0,2.20264254
+terrinv,Bactrocera philippinensis,Damage,781.3622376,terrinv,Trogoderma granarium,0,0,0,0,2.157891458
+terrinv,Bactrocera philippinensis,Management,279.8642235,terrinv,Dendroctonus micans,0,0,0,0,1.961551288
+terrinv,Bactrocera tryoni,Damage,307.603294,Mammal,Herpestes javanicus,0,0,0,0,1.587012309
+terrinv,Bactrocera tryoni,Management,94.99057826,Fish,Pseudorasbora parva,0,0,0,0,1.577256726
+terrinv,Bemisia tabaci,Management,0.00236705,terrinv,Thrips palmi,0,0,0,0,1.574470396
+terrinv,Bruchus pisorum,Mixed,34.83601445,Reptilia,Trachemys scripta,0,0,0,0,1.456459458
+terrinv,Bursaphelenchus mucronatus,Damage,32308.70756,Mammal,Castor canadensis,0,0,0,0,1.413598685
+terrinv,Bursaphelenchus mucronatus,Management,11.0804637,Mammal,Muntiacus reevesi,0,0,0,0,1.300100126
+terrinv,Bursaphelenchus mucronatus,Mixed,167.9843665,Mammal,Equus caballus,0,0,0,0,1.230214536
+terrinv,Cactoblastis cactorum,Damage,246.1314335,Bird,Alopochen aegyptiaca,0,0,0,0,1.064448078
+terrinv,Cactoblastis cactorum,Management,67.97204794,Bird,Cygnus olor,0,0,0,0,0.93459369
+terrinv,Cameraria ohridella,Management,66.41159784,Fish,Phoxinus phoxinus,0,0,0,0,0.678241885
+terrinv,Ceratitis capitata,Damage,421.5965,terrinv,Prostephanus truncatus,0,0,0,0,0.626316936
+terrinv,Ceratitis capitata,Management,45.79059303,Mammal,Phascolarctos cinereus,0,0,0,0,0.58155895
+terrinv,Ceutorhynchus obstrictus,Damage,1462.548993,Freshwater,Corbicula fluminea,0,0,0,0,0.533186135
+terrinv,Chilo partellus,Damage,3558.666564,terrinv,Hyblaea puera,0,0,0,0,0.461731226
+terrinv,Cochliomyia hominivorax,Damage,11188.94993,Fish,Tinca tinca,0,0,0,0,0.225482471
+terrinv,Coptotermes formosanus,Mixed,49347.85136,Reptilia,Anolis carolinensis,0,0,0,0,0.21332666
+terrinv,Coptotermes gestroi,Damage,13.37042152,terrinv,Maconellicoccus hirsutus,0,0,0,0,0.120161119
+terrinv,Coptotermes gestroi,Management,12.64075956,Amphibian,Lithobates catesbeianus,0,0,0,0,0.096868319
+terrinv,Coptotermes gestroi,Mixed,23.4299046,Reptilia,Chelydra serpentina,0,0,0,0,0.0866559
+terrinv,Cydia pomonella,Damage,5824.454772,Amphibian,Xenopus laevis,0,0,0,0,0.02307698
+terrinv,Daktulosphaira vitifoliae,Management,2.097556175,terrinv,Varroa jacobsoni,0,0,0,0,0.002477275
+terrinv,Daktulosphaira vitifoliae,Mixed,4.978137714,terrinv,Bemisia tabaci,0,0,0,0,0.00236705
+terrinv,Dendroctonus micans,Damage,1.557385028,terrinv,Aleurodicus rugioperculatus,0,0,0,0,0.000727445
+terrinv,Dendroctonus micans,Management,0.40416626,,,,,,,
+terrinv,Drosophila suzukii,Damage,144.0003009,,,,,,,
+terrinv,Elatobium abietinum,Damage,27.3715398,,,,,,,
+terrinv,Ephestia kuehniella,Damage,3.130386897,,,,,,,
+terrinv,Ephestia kuehniella,Management,13.80802797,,,,,,,
+terrinv,Frankliniella occidentalis,Damage,507.1677927,,,,,,,
+terrinv,Globodera rostochiensis,Management,3.154195312,,,,,,,
+terrinv,Haematobia irritans,Damage,18692.0863,,,,,,,
+terrinv,Halotydeus destructor,Damage,949.9066358,,,,,,,
+terrinv,Hyblaea puera,Management,0.461731226,,,,,,,
+terrinv,Hypera postica,Management,8574.514597,,,,,,,
+terrinv,Hyphantria cunea,Mixed,22.07499113,,,,,,,
+terrinv,Hypothenemus hampei,Damage,40.19497222,,,,,,,
+terrinv,Leptinotarsa decemlineata,Damage,26.50504842,,,,,,,
+terrinv,Leptinotarsa decemlineata,Management,45.16919243,,,,,,,
+terrinv,Linepithema humile,Management,6.63436384,,,,,,,
+terrinv,Liriomyza huidobrensis,Management,48.80939457,,,,,,,
+terrinv,Liriomyza sativae,Damage,878.3269256,,,,,,,
+terrinv,Lissachatina fulica,Management,24.62739234,,,,,,,
+terrinv,Listronotus bonariensis,Damage,1626.8519,,,,,,,
+terrinv,Lymantria dispar,Damage,10459.50085,,,,,,,
+terrinv,Lymantria dispar,Management,556.0021484,,,,,,,
+terrinv,Maconellicoccus hirsutus,Management,0.120161119,,,,,,,
+terrinv,Nilaparvata lugens,Damage,652.2697568,,,,,,,
+terrinv,Paracoccus marginatus,Management,1245.861155,,,,,,,
+terrinv,Pectinophora gossypiella,Mixed,138.5686629,,,,,,,
+terrinv,Phenacoccus solenopsis,Damage,8735.47128,,,,,,,
+terrinv,Phthorimaea operculella,Mixed,165.0320238,,,,,,,
+terrinv,Prostephanus truncatus,Management,0.626316936,,,,,,,
+terrinv,Raoiella indica,Management,2.20264254,,,,,,,
+terrinv,Rhipicephalus microplus,Damage,16286.59909,,,,,,,
+terrinv,Rhynchophorus ferrugineus,Management,11.85006401,,,,,,,
+terrinv,Scirtothrips perseae,Damage,84.69291663,,,,,,,
+terrinv,Scirtothrips perseae,Mixed,90.50901974,,,,,,,
+terrinv,Sirex noctilio,Management,221.4785207,,,,,,,
+terrinv,Solenopsis invicta,Management,1073.223934,,,,,,,
+terrinv,Spodoptera frugiperda,Damage,23630.36669,,,,,,,
+terrinv,Spodoptera frugiperda,Management,14.84063204,,,,,,,
+terrinv,Spodoptera frugiperda,Mixed,30.64336824,,,,,,,
+terrinv,Stomoxys calcitrans,Damage,13035.9406,,,,,,,
+terrinv,Teia anartoides,Management,968.6423231,,,,,,,
+terrinv,Thrips palmi,Management,1.574470396,,,,,,,
+terrinv,Trogoderma granarium,Management,2.157891458,,,,,,,
+terrinv,Varroa jacobsoni,Damage,0.002477275,,,,,,,
+terrinv,Vespa velutina,Damage,0.153645247,,,,,,,
+terrinv,Vespa velutina,Management,7.259289724,,,,,,,
+terrinv,Vespula germanica,Damage,36.59561607,,,,,,,
+terrinv,Vespula germanica,Management,0.016320732,,,,,,,
+terrinv,Vespula vulgaris,Management,2.735770889,,,,,,,

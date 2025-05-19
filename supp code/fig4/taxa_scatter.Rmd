@@ -1,0 +1,543 @@
+---
+title: "taxa_scatter"
+author: "Shimin Gu"
+date: "2024-08-15"
+output: html_document
+---
+
+
+```{r}
+#load packages
+library(ggpubr) 
+library(patchwork) 
+library(ggsci)
+library(tidyverse)
+library(dplyr)
+library(rphylopic)
+library(ggplot2)
+
+#load data
+taxa_curr <- read.csv("taxa_curr.csv", sep =",", header =T);taxa_curr$group <- "current"
+taxa_ssp1 <- read.csv("taxa_ssp1.csv", sep =",", header =T);taxa_ssp1$group <- "ssp1"
+taxa_ssp2 <- read.csv("taxa_ssp2.csv", sep =",", header =T);taxa_ssp2$group <- "ssp2"
+taxa_ssp5 <- read.csv("taxa_ssp5.csv", sep =",", header =T);taxa_ssp5$group <- "ssp5"
+```
+#preparing data frame
+```{r}
+taxa_all <- rbind(taxa_curr,taxa_ssp1,taxa_ssp2,taxa_ssp5)
+taxa_terrinv <- subset(taxa_all, Class_code == "terrinv")
+taxa_Mammal <- subset(taxa_all, Class_code == "Mammal")
+taxa_Freshwater <- subset(taxa_all, Class_code == "Freshwater")
+taxa_Bird <- subset(taxa_all, Class_code == "Bird")
+taxa_Amphibian <- subset(taxa_all, Class_code == "Amphibian")
+taxa_Reptilia <- subset(taxa_all, Class_code == "Reptilia")
+taxa_Fish <- subset(taxa_all, Class_code == "Fish")
+
+```
+#preparing gray background
+```{r}
+taxa_all_bg <- taxa_all %>%
+  group_by(group) %>%
+  summarize(max_pred = max(pred_cost_mean), min_pred = min(pred_cost_mean))
+taxa_terrinv_bg <- taxa_terrinv %>%
+  group_by(group) %>%
+  summarize(max_pred = max(pred_cost_mean), min_pred = min(pred_cost_mean))
+taxa_Mammal_bg <- taxa_Mammal %>%
+  group_by(group) %>%
+  summarize(max_pred = max(pred_cost_mean), min_pred = min(pred_cost_mean))
+taxa_Freshwater_bg <- taxa_Freshwater %>%
+  group_by(group) %>%
+  summarize(max_pred = max(pred_cost_mean), min_pred = min(pred_cost_mean))
+taxa_Bird_bg <- taxa_Bird %>%
+  group_by(group) %>%
+  summarize(max_pred = max(pred_cost_mean), min_pred = min(pred_cost_mean))
+taxa_Amphibian_bg <- taxa_Amphibian %>%
+  group_by(group) %>%
+  summarize(max_pred = max(pred_cost_mean), min_pred = min(pred_cost_mean))
+taxa_Reptilia_bg <- taxa_Reptilia %>%
+  group_by(group) %>%
+  summarize(max_pred = max(pred_cost_mean), min_pred = min(pred_cost_mean))
+taxa_Fish_bg <- taxa_Fish %>%
+  group_by(group) %>%
+  summarize(max_pred = max(pred_cost_mean), min_pred = min(pred_cost_mean))
+```
+
+#plotting
+```{r}
+#_all
+pdf(width = 3, height = 3.6, file = "fig4a_all.pdf")
+sizetext <- 10
+compare_list <- list(
+    c("current","ssp1"),
+    c("current","ssp2"),
+    c("current","ssp5"))
+    
+ggplot(taxa_all,aes(x = group,y = pred_cost_mean)) +
+  geom_col(data = taxa_all_bg, 
+           mapping = aes(group,max_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_col(data = taxa_all_bg, 
+           mapping = aes(group, min_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  
+  geom_jitter(aes(color = group), size = 0.8, alpha = 0.65)+
+  # geom_boxplot(aes(fill = group),alpha = 0.7)+
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  scale_color_manual(values = c("#97979730","#FED3C2","#FD9780","#611320"))+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="Climate scenario", y="Potential economic cost (millions of US$)")+
+  stat_compare_means(
+    comparisons = compare_list,
+    method = "wilcox.test",paired = T,
+    label = "p.signif")
+```
+
+```{r}
+#_terrinv
+pdf(width = 3, height = 3.6, file = "fig4b_terrinv.pdf")
+
+uuid <- get_uuid(name = "Aedes aegypti")
+img <- get_phylopic(uuid = uuid)
+loc.x = "current"
+loc.y = 100001
+ysize_pic = 1.2
+color_pic = "#161616"
+
+sizetext <- 10
+compare_list <- list(
+    c("current","ssp1"),
+    c("current","ssp2"),
+    c("current","ssp5"))
+    
+ggplot(taxa_terrinv,aes(x = group,y = pred_cost_mean)) +
+  geom_col(data = taxa_terrinv_bg, 
+           mapping = aes(group,max_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_col(data = taxa_terrinv_bg, 
+           mapping = aes(group, min_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_jitter(aes(color = group), size = 0.8, alpha = 0.65)+
+  # geom_boxplot(aes(fill = group),alpha = 0.7)+
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  scale_color_manual(values = c("#97979730","#FED3C2","#FD9780","#611320"))+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="Climate scenario", y="Potential economic cost (millions of US$)")+
+  stat_compare_means(
+    comparisons = compare_list,
+    method = "wilcox.test",paired = T,
+    label = "p.signif")+
+  add_phylopic(x =loc.x, y =loc.y, img = img, ysize = ysize_pic, color = color_pic)
+```
+
+```{r}
+#_Mammal
+pdf(width = 3, height = 3.6, file = "fig4c_Mammal.pdf")
+
+uuid <- get_uuid(name = "Rattus")
+img <- get_phylopic(uuid = uuid)
+loc.x = "current"
+loc.y = 100001
+ysize_pic = 1.2
+color_pic = "#161616"
+
+sizetext <- 10
+compare_list <- list(
+    c("current","ssp1"),
+    c("current","ssp2"),
+    c("current","ssp5"))
+    
+ggplot(taxa_Mammal,aes(x = group,y = pred_cost_mean)) +
+  geom_col(data = taxa_Mammal_bg, 
+           mapping = aes(group,max_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_col(data = taxa_Mammal_bg, 
+           mapping = aes(group, min_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_jitter(aes(color = group), size = 0.8, alpha = 0.65)+
+  # geom_boxplot(aes(fill = group),alpha = 0.7)+
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000,100000), labels = scales::comma)+
+  scale_color_manual(values = c("#97979730","#FED3C2","#FD9780","#611320"))+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="Climate scenario", y="Potential economic cost (millions of US$)")+
+  stat_compare_means(
+    comparisons = compare_list,
+    method = "wilcox.test",paired = T,
+    label = "p.signif")+
+  add_phylopic(x =loc.x, y =loc.y, img = img, ysize = ysize_pic, color = color_pic)
+```
+
+```{r}
+#_Freshwater
+pdf(width = 3, height = 3.6, file = "fig4d_Freshwater.pdf")
+
+uuid <- get_uuid(name = "Dreissena polymorpha")
+img <- get_phylopic(uuid = uuid)
+loc.x = "current"
+loc.y = 10001
+ysize_pic = 1.2
+color_pic = "#161616"
+
+sizetext <- 10
+compare_list <- list(
+    c("current","ssp1"),
+    c("current","ssp2"),
+    c("current","ssp5"))
+    
+ggplot(taxa_Freshwater,aes(x = group,y = pred_cost_mean)) +
+  geom_col(data = taxa_Freshwater_bg, 
+           mapping = aes(group,max_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_col(data = taxa_Freshwater_bg, 
+           mapping = aes(group, min_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_jitter(aes(color = group), size = 0.8, alpha = 0.65)+
+  # geom_boxplot(aes(fill = group),alpha = 0.7)+
+  scale_y_continuous(trans = 'log10', breaks = c(0,1,100,1000,10000), labels = scales::comma)+
+  scale_color_manual(values = c("#97979730","#FED3C2","#FD9780","#611320"))+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="Climate scenario", y="Potential economic cost (millions of US$)")+
+  stat_compare_means(
+    comparisons = compare_list,
+    method = "wilcox.test",paired = T,
+    label = "p.signif")+
+  add_phylopic(x =loc.x, y =loc.y, img = img, ysize = ysize_pic, color = color_pic)
+```
+
+```{r}
+#_Bird
+pdf(width = 3, height = 3.6, file = "fig4e_Bird.pdf")
+
+uuid <- get_uuid(name = "Psittacula")
+img <- get_phylopic(uuid = uuid)
+loc.x = "current"
+loc.y = 101
+ysize_pic = 0.5
+color_pic = "#161616"
+
+sizetext <- 10
+compare_list <- list(
+    c("current","ssp1"),
+    c("current","ssp2"),
+    c("current","ssp5"))
+    
+ggplot(taxa_Bird,aes(x = group,y = pred_cost_mean)) +
+  geom_col(data = taxa_Bird_bg, 
+           mapping = aes(group,max_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_col(data = taxa_Bird_bg, 
+           mapping = aes(group, min_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_jitter(aes(color = group), size = 0.8, alpha = 0.65)+
+  # geom_boxplot(aes(fill = group),alpha = 0.7)+
+  scale_y_continuous(trans = 'log10', breaks = c(0,0.01,1,100), labels = scales::comma)+
+  scale_color_manual(values = c("#97979730","#FED3C2","#FD9780","#611320"))+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="Climate scenario", y="Potential economic cost (millions of US$)")+
+  stat_compare_means(
+    comparisons = compare_list,
+    method = "wilcox.test",paired = T,
+    label = "p.signif")+
+  add_phylopic(x =loc.x, y =loc.y, img = img, ysize = ysize_pic, color = color_pic)
+```
+
+```{r}
+#_Amphibian
+pdf(width = 3, height = 3.6, file = "fig4f_Amphibian.pdf")
+
+uuid <- get_uuid(name = "Rhinella marina")
+img <- get_phylopic(uuid = uuid)
+loc.x = "current"
+loc.y = 12
+ysize_pic = 0.5
+color_pic = "#161616"
+
+sizetext <- 10
+compare_list <- list(
+    c("current","ssp1"),
+    c("current","ssp2"),
+    c("current","ssp5"))
+    
+ggplot(taxa_Amphibian,aes(x = group,y = pred_cost_mean)) +
+  geom_col(data = taxa_Amphibian_bg, 
+           mapping = aes(group,max_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_col(data = taxa_Amphibian_bg, 
+           mapping = aes(group, min_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_jitter(aes(color = group), size = 0.8, alpha = 0.65)+
+  # geom_boxplot(aes(fill = group),alpha = 0.7)+
+  scale_y_continuous(trans = 'log10', breaks = c(0,0.01,0.1, 10), labels = scales::comma)+
+  scale_color_manual(values = c("#97979730","#FED3C2","#FD9780","#611320"))+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="Climate scenario", y="Potential economic cost (millions of US$)")+
+  stat_compare_means(
+    comparisons = compare_list,
+    method = "wilcox.test",paired = T,
+    label = "p.signif")+
+  add_phylopic(x =loc.x, y =loc.y, img = img, ysize = ysize_pic, color = color_pic)
+```
+
+```{r}
+#_Reptilia
+pdf(width = 3, height = 3.6, file = "fig4g_Reptilia.pdf")
+
+uuid <- get_uuid(name = "Leptodeira frenata yucatanensis")
+img <- get_phylopic(uuid = uuid)
+loc.x = "current"
+loc.y = 3
+ysize_pic = 0.3
+color_pic = "#161616"
+
+sizetext <- 10
+compare_list <- list(
+    c("current","ssp1"),
+    c("current","ssp2"),
+    c("current","ssp5"))
+    
+ggplot(taxa_Reptilia,aes(x = group,y = pred_cost_mean)) +
+  geom_col(data = taxa_Reptilia_bg, 
+           mapping = aes(group,max_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_col(data = taxa_Reptilia_bg, 
+           mapping = aes(group, min_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_jitter(aes(color = group), size = 0.8, alpha = 0.65)+
+  # geom_boxplot(aes(fill = group),alpha = 0.7)+
+  scale_y_continuous(trans = 'log10', breaks = c(0,0.1,1), labels = scales::comma)+
+  scale_color_manual(values = c("#97979730","#FED3C2","#FD9780","#611320"))+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="Climate scenario", y="Potential economic cost (millions of US$)")+
+  stat_compare_means(
+    comparisons = compare_list,
+    method = "wilcox.test",paired = T,
+    label = "p.signif")+
+  add_phylopic(x =loc.x, y =loc.y, img = img, ysize = ysize_pic, color = color_pic)
+```
+
+```{r}
+#_Fish
+pdf(width = 3, height = 3.6, file = "fig4h_Fish.pdf")
+
+uuid <- get_uuid(name = "Cyprinidae")
+img <- get_phylopic(uuid = uuid)
+loc.x = "current"
+loc.y = 0.9
+ysize_pic = 0.1
+color_pic = "#161616"
+
+sizetext <- 10
+compare_list <- list(
+    c("current","ssp1"),
+    c("current","ssp2"),
+    c("current","ssp5"))
+    
+ggplot(taxa_Fish,aes(x = group,y = pred_cost_mean)) +
+  geom_col(data = taxa_Fish_bg, 
+           mapping = aes(group,max_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_col(data = taxa_Fish_bg, 
+           mapping = aes(group, min_pred),
+           fill = "grey85", width = 0.8, alpha = 0.15) +
+  geom_jitter(aes(color = group), size = 0.8, alpha = 0.65)+
+  # geom_boxplot(aes(fill = group),alpha = 0.7)+
+  # scale_y_continuous(trans = 'log10', breaks = c(0,0.1,1), labels = scales::comma)+
+  scale_color_manual(values = c("#97979730","#FED3C2","#FD9780","#611320"))+
+  theme_classic(base_size = sizetext)+
+  theme(axis.ticks = element_line(colour = "black", linewidth = 0.2),
+        axis.text = element_text(size = sizetext, colour = "black"),
+        axis.title = element_text(size = sizetext), 
+        axis.text.x = element_text(angle=30, hjust=1), legend.position = "none")+
+  labs(x="Climate scenario", y="Potential economic cost (millions of US$)")+
+  stat_compare_means(
+    comparisons = compare_list,
+    method = "wilcox.test",paired = T,
+    label = "p.signif")+
+  add_phylopic(x =loc.x, y =loc.y, img = img, ysize = ysize_pic, color = color_pic)
+```
+
+
+#using wilcox_test function in rstatix package
+```{r}
+library(rstatix)
+
+#_taxa_all
+taxa_all_curr <- subset(taxa_all, taxa_all$group == "current")
+taxa_all_ssp1 <- subset(taxa_all, taxa_all$group == "ssp1")
+taxa_all_ssp2 <- subset(taxa_all, taxa_all$group == "ssp2")
+taxa_all_ssp5 <- subset(taxa_all, taxa_all$group == "ssp5")
+
+bind_curr_ssp1_taxa_all <- rbind(taxa_all_curr,taxa_all_ssp1)
+bind_curr_ssp1_taxa_all %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp2_taxa_all <- rbind(taxa_all_curr,taxa_all_ssp2)
+bind_curr_ssp2_taxa_all %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp5_taxa_all <- rbind(taxa_all_curr,taxa_all_ssp5)
+bind_curr_ssp5_taxa_all %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+```
+```{r}
+#_taxa_terrinv
+taxa_terrinv_curr <- subset(taxa_terrinv, taxa_terrinv$group == "current")
+taxa_terrinv_ssp1 <- subset(taxa_terrinv, taxa_terrinv$group == "ssp1")
+taxa_terrinv_ssp2 <- subset(taxa_terrinv, taxa_terrinv$group == "ssp2")
+taxa_terrinv_ssp5 <- subset(taxa_terrinv, taxa_terrinv$group == "ssp5")
+
+bind_curr_ssp1_taxa_terrinv <- rbind(taxa_terrinv_curr,taxa_terrinv_ssp1)
+bind_curr_ssp1_taxa_terrinv %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp2_taxa_terrinv <- rbind(taxa_terrinv_curr,taxa_terrinv_ssp2)
+bind_curr_ssp2_taxa_terrinv %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp5_taxa_terrinv <- rbind(taxa_terrinv_curr,taxa_terrinv_ssp5)
+bind_curr_ssp5_taxa_terrinv %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+```
+```{r}
+#_taxa_Mammal
+taxa_Mammal_curr <- subset(taxa_Mammal, taxa_Mammal$group == "current")
+taxa_Mammal_ssp1 <- subset(taxa_Mammal, taxa_Mammal$group == "ssp1")
+taxa_Mammal_ssp2 <- subset(taxa_Mammal, taxa_Mammal$group == "ssp2")
+taxa_Mammal_ssp5 <- subset(taxa_Mammal, taxa_Mammal$group == "ssp5")
+
+bind_curr_ssp1_taxa_Mammal <- rbind(taxa_Mammal_curr,taxa_Mammal_ssp1)
+bind_curr_ssp1_taxa_Mammal %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp2_taxa_Mammal <- rbind(taxa_Mammal_curr,taxa_Mammal_ssp2)
+bind_curr_ssp2_taxa_Mammal %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp5_taxa_Mammal <- rbind(taxa_Mammal_curr,taxa_Mammal_ssp5)
+bind_curr_ssp5_taxa_Mammal %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+```
+```{r}
+#_taxa_Freshwater
+taxa_Freshwater_curr <- subset(taxa_Freshwater, taxa_Freshwater$group == "current")
+taxa_Freshwater_ssp1 <- subset(taxa_Freshwater, taxa_Freshwater$group == "ssp1")
+taxa_Freshwater_ssp2 <- subset(taxa_Freshwater, taxa_Freshwater$group == "ssp2")
+taxa_Freshwater_ssp5 <- subset(taxa_Freshwater, taxa_Freshwater$group == "ssp5")
+
+bind_curr_ssp1_taxa_Freshwater <- rbind(taxa_Freshwater_curr,taxa_Freshwater_ssp1)
+bind_curr_ssp1_taxa_Freshwater %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp2_taxa_Freshwater <- rbind(taxa_Freshwater_curr,taxa_Freshwater_ssp2)
+bind_curr_ssp2_taxa_Freshwater %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp5_taxa_Freshwater <- rbind(taxa_Freshwater_curr,taxa_Freshwater_ssp5)
+bind_curr_ssp5_taxa_Freshwater %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+```
+```{r}
+#_taxa_Bird
+taxa_Bird_curr <- subset(taxa_Bird, taxa_Bird$group == "current")
+taxa_Bird_ssp1 <- subset(taxa_Bird, taxa_Bird$group == "ssp1")
+taxa_Bird_ssp2 <- subset(taxa_Bird, taxa_Bird$group == "ssp2")
+taxa_Bird_ssp5 <- subset(taxa_Bird, taxa_Bird$group == "ssp5")
+
+bind_curr_ssp1_taxa_Bird <- rbind(taxa_Bird_curr,taxa_Bird_ssp1)
+bind_curr_ssp1_taxa_Bird %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp2_taxa_Bird <- rbind(taxa_Bird_curr,taxa_Bird_ssp2)
+bind_curr_ssp2_taxa_Bird %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp5_taxa_Bird <- rbind(taxa_Bird_curr,taxa_Bird_ssp5)
+bind_curr_ssp5_taxa_Bird %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+```
+```{r}
+#_taxa_Amphibian
+taxa_Amphibian_curr <- subset(taxa_Amphibian, taxa_Amphibian$group == "current")
+taxa_Amphibian_ssp1 <- subset(taxa_Amphibian, taxa_Amphibian$group == "ssp1")
+taxa_Amphibian_ssp2 <- subset(taxa_Amphibian, taxa_Amphibian$group == "ssp2")
+taxa_Amphibian_ssp5 <- subset(taxa_Amphibian, taxa_Amphibian$group == "ssp5")
+
+bind_curr_ssp1_taxa_Amphibian <- rbind(taxa_Amphibian_curr,taxa_Amphibian_ssp1)
+bind_curr_ssp1_taxa_Amphibian %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp2_taxa_Amphibian <- rbind(taxa_Amphibian_curr,taxa_Amphibian_ssp2)
+bind_curr_ssp2_taxa_Amphibian %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp5_taxa_Amphibian <- rbind(taxa_Amphibian_curr,taxa_Amphibian_ssp5)
+bind_curr_ssp5_taxa_Amphibian %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+```
+```{r}
+#_taxa_Reptilia
+taxa_Reptilia_curr <- subset(taxa_Reptilia, taxa_Reptilia$group == "current")
+taxa_Reptilia_ssp1 <- subset(taxa_Reptilia, taxa_Reptilia$group == "ssp1")
+taxa_Reptilia_ssp2 <- subset(taxa_Reptilia, taxa_Reptilia$group == "ssp2")
+taxa_Reptilia_ssp5 <- subset(taxa_Reptilia, taxa_Reptilia$group == "ssp5")
+
+bind_curr_ssp1_taxa_Reptilia <- rbind(taxa_Reptilia_curr,taxa_Reptilia_ssp1)
+bind_curr_ssp1_taxa_Reptilia %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp2_taxa_Reptilia <- rbind(taxa_Reptilia_curr,taxa_Reptilia_ssp2)
+bind_curr_ssp2_taxa_Reptilia %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp5_taxa_Reptilia <- rbind(taxa_Reptilia_curr,taxa_Reptilia_ssp5)
+bind_curr_ssp5_taxa_Reptilia %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+```
+```{r}
+#_taxa_Fish
+taxa_Fish_curr <- subset(taxa_Fish, taxa_Fish$group == "current")
+taxa_Fish_ssp1 <- subset(taxa_Fish, taxa_Fish$group == "ssp1")
+taxa_Fish_ssp2 <- subset(taxa_Fish, taxa_Fish$group == "ssp2")
+taxa_Fish_ssp5 <- subset(taxa_Fish, taxa_Fish$group == "ssp5")
+
+bind_curr_ssp1_taxa_Fish <- rbind(taxa_Fish_curr,taxa_Fish_ssp1)
+bind_curr_ssp1_taxa_Fish %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp2_taxa_Fish <- rbind(taxa_Fish_curr,taxa_Fish_ssp2)
+bind_curr_ssp2_taxa_Fish %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+
+bind_curr_ssp5_taxa_Fish <- rbind(taxa_Fish_curr,taxa_Fish_ssp5)
+bind_curr_ssp5_taxa_Fish %>%
+  wilcox_test(pred_cost_mean ~ group, paired = TRUE)
+```
+

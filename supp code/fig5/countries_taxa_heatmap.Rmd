@@ -1,0 +1,163 @@
+---
+title: "countries_taxa_heatmap"
+author: "Shimin Gu"
+date: "2024-08-20"
+output: html_document
+---
+
+#top 10 costliest countries
+
+
+# tot_, fill matrix
+```{r}
+#load package
+library(ComplexHeatmap)
+
+tot_ <- read.csv("fill_matrix_total_top10.csv", sep = ",", header = T)
+
+tot_$curr_pred_cost_mean <- log10((tot_$curr_pred_cost_mean)+1)
+tot_$ssp1_pred_cost_mean <- log10((tot_$ssp1_pred_cost_mean)+1)
+tot_$ssp2_pred_cost_mean <- log10((tot_$ssp2_pred_cost_mean)+1)
+tot_$ssp5_pred_cost_mean <- log10((tot_$ssp5_pred_cost_mean)+1)
+
+for (i in 1:56){
+  for (k in 1:10){
+    for (j in 1:220){
+    if (tot_$species[i]==tot_$s_Species[j] && tot_$s_Official_country[j] == tot_$total_cost_top10[k]){
+      m = 2+4*(k-1)
+      p = 3+4*(k-1)
+      q = 4+4*(k-1)
+      b = 5+4*(k-1)
+      tot_[i,m] = tot_$curr_pred_cost_mean[j]
+      tot_[i,p] = tot_$ssp1_pred_cost_mean[j]
+      tot_[i,q] = tot_$ssp2_pred_cost_mean[j]
+      tot_[i,b] = tot_$ssp5_pred_cost_mean[j]
+    }
+  }
+  }
+}
+```
+
+```{r}
+tot_mat <- tot_[1:56,2:41]
+row.names(tot_mat) <- c(tot_$species[1:56])
+tot_mat <- as.matrix(tot_mat)
+tot_mat_samp <- as.matrix(tot_[1:40,50])
+row.names(tot_mat_samp) <- c(tot_$sample[1:40])
+colnames(tot_mat_samp) <- "group"
+```
+
+# tot_, plotting
+```{r}
+pdf(width = 9, height = 10, file = "tot_heatmap.pdf")
+
+sizetext <- 10
+
+Heatmap(
+  tot_mat, name = 'Potential economic cost\n(Log10-millions of US$)', 
+  col = colorRampPalette(c('white','#FDE9DF','#FED3C2','#FD9780','#F2584B','#611320'))(100),
+  # col = RColorBrewer::brewer.pal(9,"Reds"),  #https://kwstat.github.io/pals/reference/brewer.html
+  rect_gp = gpar(col = "#97979730", lwd = 0.7),
+  cluster_rows = FALSE, cluster_columns = FALSE,
+  row_names_gp = gpar(fontsize = sizetext), column_names_gp = gpar(fontsize = sizetext),
+  column_names_rot=90
+  
+
+  # right_annotation = HeatmapAnnotation(
+  #   Class = gene_anno, which = 'row', show_annotation_name = FALSE, 
+  #   col = list(Class= c('Carbohydrate metabolism' = '#FFAD30', 'Lipid metabolism' = '#634FB8', 'Amino acid metabolism' = '#68AD30'))
+  # ),
+  
+
+  # top_annotation = HeatmapAnnotation(
+  #   Group = tot_mat_samp, which = 'column', show_annotation_name = FALSE, 
+  #   col = list(Group = c('current' = '#97979730', 'ssp1' = '#FED3C2', 'ssp2' = '#FD9780', 'ssp5' = '#611320'))
+  # )
+)
+
+
+dev.off()
+```
+
+
+
+
+
+
+
+
+
+
+#top 10 proportional changing countries
+
+# tot_, fill matrix
+```{r}
+#load package
+library(ComplexHeatmap)
+
+tot_ <- read.csv("fill_matrix_total_top10_changing.csv", sep = ",", header = T)
+
+tot_$curr_pred_cost_mean <- log10((tot_$curr_pred_cost_mean)+1)
+tot_$ssp1_pred_cost_mean <- log10((tot_$ssp1_pred_cost_mean)+1)
+tot_$ssp2_pred_cost_mean <- log10((tot_$ssp2_pred_cost_mean)+1)
+tot_$ssp5_pred_cost_mean <- log10((tot_$ssp5_pred_cost_mean)+1)
+
+for (i in 1:23){
+  for (k in 1:10){
+    for (j in 1:220){
+    if (tot_$species[i]==tot_$s_Species[j] && tot_$s_Official_country[j] == tot_$total_cost_top10[k]){
+      m = 2+4*(k-1)
+      p = 3+4*(k-1)
+      q = 4+4*(k-1)
+      b = 5+4*(k-1)
+      tot_[i,m] = tot_$curr_pred_cost_mean[j]
+      tot_[i,p] = tot_$ssp1_pred_cost_mean[j]
+      tot_[i,q] = tot_$ssp2_pred_cost_mean[j]
+      tot_[i,b] = tot_$ssp5_pred_cost_mean[j]
+    }
+  }
+  }
+}
+```
+
+```{r}
+tot_mat <- tot_[1:23,2:41]
+row.names(tot_mat) <- c(tot_$species[1:23])
+tot_mat <- as.matrix(tot_mat)
+tot_mat_samp <- as.matrix(tot_[1:40,50])
+row.names(tot_mat_samp) <- c(tot_$sample[1:40])
+colnames(tot_mat_samp) <- "group"
+```
+
+# tot_, plotting
+```{r}
+pdf(width = 9, height = 7, file = "tot_heatmap_changing.pdf")
+
+sizetext <- 10
+
+Heatmap(
+  tot_mat, name = 'Potential economic cost\n(Log10-millions of US$)', 
+  col = colorRampPalette(c('white','#FDE9DF','#FED3C2','#FD9780','#F2584B','#611320'))(100),
+  # col = RColorBrewer::brewer.pal(9,"Reds"),  #https://kwstat.github.io/pals/reference/brewer.html
+  rect_gp = gpar(col = "#97979730", lwd = 0.7),
+  cluster_rows = FALSE, cluster_columns = FALSE,
+  row_names_gp = gpar(fontsize = sizetext), column_names_gp = gpar(fontsize = sizetext),
+  column_names_rot=90
+  
+
+  # right_annotation = HeatmapAnnotation(
+  #   Class = gene_anno, which = 'row', show_annotation_name = FALSE, 
+  #   col = list(Class= c('Carbohydrate metabolism' = '#FFAD30', 'Lipid metabolism' = '#634FB8', 'Amino acid metabolism' = '#68AD30'))
+  # ),
+  
+
+  # top_annotation = HeatmapAnnotation(
+  #   Group = tot_mat_samp, which = 'column', show_annotation_name = FALSE, 
+  #   col = list(Group = c('current' = '#97979730', 'ssp1' = '#FED3C2', 'ssp2' = '#FD9780', 'ssp5' = '#611320'))
+  # )
+)
+
+
+dev.off()
+```
+
